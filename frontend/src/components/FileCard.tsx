@@ -1,13 +1,6 @@
 import { DollarSign, Download, Loader2, Eye } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import {
-  getCategoryIcon,
-  getCategoryColor,
-  getCategoryBg,
-} from "@/lib/category-icons";
-import { type UserFile } from "@/hooks/useUserFiles";
-import { useDownloadPiece } from "@/hooks/useDownloadPiece";
-import { useOpenPieceDataInNewTab } from "@/hooks/useOpenPieceDataInNewTab";
+import { useCategory, useFileOperations, type UserFile } from "@/hooks";
 
 interface FileCardProps {
   file: UserFile;
@@ -15,22 +8,9 @@ interface FileCardProps {
 }
 
 export function FileCard({ file, onClick }: FileCardProps) {
-  const Icon = getCategoryIcon(file.category);
-  const gradient = getCategoryColor(file.category);
-  const bgColor = getCategoryBg(file.category);
+  const { icon: Icon, gradient, bgColor } = useCategory(file.category);
+  const { download, view } = useFileOperations(file);
   const hasPrice = file.price && parseFloat(file.price) > 0;
-  const filename = file.title || `${file.pieceCid}.bin`;
-  const { downloadMutation } = useDownloadPiece(file.pieceCid, filename);
-
-  // const { deletePieceMutation } = useDeletePiece({});
-
-  const isDownloading = downloadMutation.isPending;
-  const { openPieceDataInNewTabMutation } = useOpenPieceDataInNewTab(
-    file.pieceCid,
-    file.isCDN || false,
-    file.serviceURL || "",
-  );
-  const isOpening = openPieceDataInNewTabMutation.isPending;
 
   return (
     <Card
@@ -86,15 +66,13 @@ export function FileCard({ file, onClick }: FileCardProps) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              if (file.serviceURL) {
-                openPieceDataInNewTabMutation.mutate();
-              }
+              view.mutate();
             }}
-            disabled={isOpening || !file.serviceURL}
+            disabled={view.isPending || !view.isAvailable}
             className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
             title="View file"
           >
-            {isOpening ? (
+            {view.isPending ? (
               <Loader2 size={16} className="text-gray-400 animate-spin" />
             ) : (
               <Eye size={16} className="text-gray-400" />
@@ -103,13 +81,13 @@ export function FileCard({ file, onClick }: FileCardProps) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              downloadMutation.mutate();
+              download.mutate();
             }}
-            disabled={isDownloading}
+            disabled={download.isPending}
             className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
             title="Download file"
           >
-            {isDownloading ? (
+            {download.isPending ? (
               <Loader2 size={16} className="text-gray-400 animate-spin" />
             ) : (
               <Download size={16} className="text-gray-400" />

@@ -3,19 +3,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { useAccount } from "wagmi";
 import { useSynapse } from "@/hooks/useSynapse";
-import { PDPServer } from "@filoz/synapse-sdk";
+import { PDPServer, WarmStorageService } from "@filoz/synapse-sdk";
 
 export type UserFile = {
   pdpVerifierDataSetId: string;
   providerId: string;
   pieceCid: string;
-  title?: string;
-  description?: string;
-  category?: string;
-  price?: string;
-};
-
-type PieceMetadata = {
   title?: string;
   description?: string;
   category?: string;
@@ -32,6 +25,11 @@ export const useUserFiles = () => {
     queryFn: async () => {
       if (!synapse) throw new Error("Synapse not initialized");
       if (!address) throw new Error("Address not found");
+
+      const warmStorage = await WarmStorageService.create(
+        synapse.getProvider(),
+        synapse.getWarmStorageAddress(),
+      );
 
       const datasets = await synapse.storage.findDataSets();
 
@@ -53,19 +51,48 @@ export const useUserFiles = () => {
             );
 
             for (const piece of data.pieces) {
-              const metadata =
-                (piece as unknown as { metadata?: PieceMetadata })?.metadata ||
-                {};
+              try {
+                const pieceCid = piece.pieceCid.toV1().toString();
+                const pieceId = (piece as unknown as { pieceId?: number })
+                  ?.pieceId;
 
-              allFiles.push({
-                pdpVerifierDataSetId: dataset.pdpVerifierDataSetId.toString(),
-                providerId: dataset.providerId.toString(),
-                pieceCid: piece.pieceCid.toV1().toString(),
-                title: metadata.title,
-                description: metadata.description,
-                category: metadata.category,
-                price: metadata.price,
-              });
+                if (!pieceId) {
+                  // Fallback if pieceId doesn't exist
+                  allFiles.push({
+                    pdpVerifierDataSetId:
+                      dataset.pdpVerifierDataSetId.toString(),
+                    providerId: dataset.providerId.toString(),
+                    pieceCid,
+                  });
+                  continue;
+                }
+
+                const metadata = await warmStorage.getPieceMetadata(
+                  dataset.pdpVerifierDataSetId,
+                  pieceId,
+                );
+
+                allFiles.push({
+                  pdpVerifierDataSetId: dataset.pdpVerifierDataSetId.toString(),
+                  providerId: dataset.providerId.toString(),
+                  pieceCid,
+                  title: metadata?.title,
+                  description: metadata?.description,
+                  category: metadata?.category,
+                  price: metadata?.price,
+                });
+              } catch (error) {
+                console.warn(
+                  `Failed to fetch metadata for piece ${piece.pieceCid.toV1().toString()}:`,
+                  error,
+                );
+                // Still add the file without metadata
+                allFiles.push({
+                  pdpVerifierDataSetId: dataset.pdpVerifierDataSetId.toString(),
+                  providerId: dataset.providerId.toString(),
+                  pieceCid: piece.pieceCid.toV1().toString(),
+                });
+              }
             }
           } catch (error) {
             console.warn(

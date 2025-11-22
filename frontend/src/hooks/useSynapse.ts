@@ -1,15 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { Synapse, RPC_URLS } from "@filoz/synapse-sdk";
 import { useAccount } from "wagmi";
-import { useEthersSigner } from "./useEthers";
+import { useEthersSigner } from "@/hooks/useEthers";
 
-export const useSynapse = () => {
+export const useSynapse = (withCDN?: boolean) => {
   const { isConnected, address } = useAccount();
   const signer = useEthersSigner();
 
   return useQuery({
     enabled: !!isConnected && !!address && !!signer,
-    queryKey: ["synapse", address],
+    queryKey: ["synapse", address, withCDN],
     queryFn: async () => {
       if (!signer) throw new Error("Signer not found");
       if (!address) throw new Error("Address not found");
@@ -17,6 +17,7 @@ export const useSynapse = () => {
       const synapse = await Synapse.create({
         signer,
         rpcURL: RPC_URLS.calibration.http,
+        ...(withCDN !== undefined && { withCDN }),
       });
 
       return synapse;

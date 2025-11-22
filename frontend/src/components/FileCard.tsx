@@ -1,4 +1,4 @@
-import { DollarSign, ExternalLink } from "lucide-react";
+import { DollarSign, Download, Loader2, Eye } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
   getCategoryIcon,
@@ -6,6 +6,8 @@ import {
   getCategoryBg,
 } from "@/lib/category-icons";
 import { type UserFile } from "@/hooks/useUserFiles";
+import { useDownloadPiece } from "@/hooks/useDownloadPiece";
+import { useOpenPieceDataInNewTab } from "@/hooks/useOpenPieceDataInNewTab";
 
 interface FileCardProps {
   file: UserFile;
@@ -17,6 +19,18 @@ export function FileCard({ file, onClick }: FileCardProps) {
   const gradient = getCategoryColor(file.category);
   const bgColor = getCategoryBg(file.category);
   const hasPrice = file.price && parseFloat(file.price) > 0;
+  const filename = file.title || `${file.pieceCid}.bin`;
+  const { downloadMutation } = useDownloadPiece(file.pieceCid, filename);
+
+  // const { deletePieceMutation } = useDeletePiece({});
+
+  const isDownloading = downloadMutation.isPending;
+  const { openPieceDataInNewTabMutation } = useOpenPieceDataInNewTab(
+    file.pieceCid,
+    file.isCDN || false,
+    file.serviceURL || "",
+  );
+  const isOpening = openPieceDataInNewTabMutation.isPending;
 
   return (
     <Card
@@ -68,14 +82,40 @@ export function FileCard({ file, onClick }: FileCardProps) {
             {file.category}
           </span>
         )}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-          className="opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-gray-700/50 rounded-lg"
-        >
-          <ExternalLink size={16} className="text-gray-400" />
-        </button>
+        <div className="flex items-center gap-2 transition-opacity">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              if (file.serviceURL) {
+                openPieceDataInNewTabMutation.mutate();
+              }
+            }}
+            disabled={isOpening || !file.serviceURL}
+            className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+            title="View file"
+          >
+            {isOpening ? (
+              <Loader2 size={16} className="text-gray-400 animate-spin" />
+            ) : (
+              <Eye size={16} className="text-gray-400" />
+            )}
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              downloadMutation.mutate();
+            }}
+            disabled={isDownloading}
+            className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+            title="Download file"
+          >
+            {isDownloading ? (
+              <Loader2 size={16} className="text-gray-400 animate-spin" />
+            ) : (
+              <Download size={16} className="text-gray-400" />
+            )}
+          </button>
+        </div>
       </CardFooter>
 
       {/* Hover overlay effect */}

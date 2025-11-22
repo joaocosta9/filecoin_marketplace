@@ -13,6 +13,8 @@ export type UserFile = {
   description?: string;
   category?: string;
   price?: string;
+  serviceURL?: string;
+  isCDN?: boolean;
 };
 
 export const useUserFiles = () => {
@@ -63,6 +65,8 @@ export const useUserFiles = () => {
                       dataset.pdpVerifierDataSetId.toString(),
                     providerId: dataset.providerId.toString(),
                     pieceCid,
+                    serviceURL,
+                    isCDN: false,
                   });
                   continue;
                 }
@@ -80,6 +84,8 @@ export const useUserFiles = () => {
                   description: metadata?.description,
                   category: metadata?.category,
                   price: metadata?.price,
+                  serviceURL,
+                  isCDN: false,
                 });
               } catch (error) {
                 console.warn(
@@ -91,6 +97,8 @@ export const useUserFiles = () => {
                   pdpVerifierDataSetId: dataset.pdpVerifierDataSetId.toString(),
                   providerId: dataset.providerId.toString(),
                   pieceCid: piece.pieceCid.toV1().toString(),
+                  serviceURL,
+                  isCDN: false,
                 });
               }
             }

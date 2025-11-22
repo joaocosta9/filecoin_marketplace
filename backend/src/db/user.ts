@@ -7,11 +7,14 @@ export const saveUser = async (address: string) => {
 };
 
 export const saveProduct = async (cid: string, address: string) => {
+  const uuid = crypto.randomUUID();
+
   await db.insert(products).values({
-    id: crypto.randomUUID(),
+    id: uuid,
     cid,
     address,
   });
+  return uuid;
 };
 
 export const getUserProducts = async (address: string) => {

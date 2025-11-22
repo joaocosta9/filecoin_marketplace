@@ -1,9 +1,5 @@
-/**
- * Centralized exports for all custom hooks
- * Makes imports cleaner: import { useCategory, useFileOperations } from "@/hooks"
- */
-
 export { useCategory } from "./useCategory";
+export { useDeletePiece } from "./useDeletePiece";
 export { useDownloadPiece } from "./useDownloadPiece";
 export { useEthersSigner, clientToSigner, clientToProvider } from "./useEthers";
 export { useFileOperations } from "./useFileOperations";
@@ -16,4 +12,3 @@ export { useUserFiles } from "./useUserFiles";
 // Re-export types
 export type { UserFile } from "./useUserFiles";
 export type { FileUploadMetadata, UploadedInfo } from "./useFileUpload";
-

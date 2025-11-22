@@ -14,13 +14,22 @@ import {
 import { Button } from "@/components/ui/button";
 import { UploadFormFields } from "./UploadFormFields";
 import { UploadProgress } from "./UploadProgress";
+import { useDataSets } from "@filoz/synapse-react";
+import { useAccount } from "wagmi";
 
 interface UploadModalProps {
   isOpen: boolean;
   onClose: () => void;
+  selectedDatasetId?: string;
 }
 
-export default function UploadModal({ isOpen, onClose }: UploadModalProps) {
+export default function UploadModal({
+  isOpen,
+  onClose,
+  selectedDatasetId,
+}: UploadModalProps) {
+  const { address } = useAccount();
+  const { data: datasets } = useDataSets({ address });
   const { uploadFileMutation, progress, status, handleReset } = useFileUpload();
 
   const form = useForm({
@@ -31,6 +40,10 @@ export default function UploadModal({ isOpen, onClose }: UploadModalProps) {
       category: CATEGORIES[0] as (typeof CATEGORIES)[number],
       price: "",
       isPrivate: false,
+      datasetId:
+        selectedDatasetId && selectedDatasetId !== "all"
+          ? selectedDatasetId
+          : "",
     },
     validators: {
       onChange: ({ value }) => {
@@ -54,10 +67,15 @@ export default function UploadModal({ isOpen, onClose }: UploadModalProps) {
         isPrivate: result.data.isPrivate,
       };
 
+      const datasetIdNum = result.data.datasetId
+        ? parseInt(result.data.datasetId)
+        : undefined;
+
       try {
         await uploadFileMutation.mutateAsync({
           file: result.data.file,
           metadata,
+          datasetId: datasetIdNum,
         });
 
         setTimeout(() => {
@@ -99,10 +117,16 @@ export default function UploadModal({ isOpen, onClose }: UploadModalProps) {
           className="flex flex-col flex-1 min-h-0"
         >
           <div className="flex-1 min-h-0 overflow-y-auto px-6 space-y-6 pb-4">
-            <UploadFormFields form={form} isUploading={isUploading} />
+            <UploadFormFields
+              form={form}
+              isUploading={isUploading}
+              datasets={datasets || []}
+            />
 
             {/* Progress */}
-            {isUploading && <UploadProgress status={status} progress={progress} />}
+            {isUploading && (
+              <UploadProgress status={status} progress={progress} />
+            )}
 
             {/* Success Message */}
             {isSuccess && (
@@ -141,7 +165,9 @@ export default function UploadModal({ isOpen, onClose }: UploadModalProps) {
               {({ hasFile, hasTitle, isSubmitting }) => (
                 <Button
                   type="submit"
-                  disabled={!hasFile || !hasTitle || isSubmitting || isUploading}
+                  disabled={
+                    !hasFile || !hasTitle || isSubmitting || isUploading
+                  }
                 >
                   {isUploading || isSubmitting ? (
                     <>
@@ -160,4 +186,3 @@ export default function UploadModal({ isOpen, onClose }: UploadModalProps) {
     </Dialog>
   );
 }
-

@@ -8,16 +8,35 @@ import { FileCard } from "@/components/FileCard";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/EmptyState";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { DatasetSelector } from "@/components/DatasetSelector";
+import { useDataSets } from "@filoz/synapse-react";
 
 export const Route = createFileRoute("/profile")({
   component: ProfilePage,
 });
 
 function ProfilePage() {
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, chainId } = useAccount();
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [selectedDatasetId, setSelectedDatasetId] = useState<string>("all");
 
-  const { data: files, isLoading } = useUserFiles();
+  const {
+    data: datasets,
+    isLoading: isLoadingDatasets,
+    error,
+    status,
+    fetchStatus,
+  } = useDataSets({
+    address,
+  });
+
+  if (error) {
+    console.error("useDataSets error:", error);
+  }
+
+  const { data: files, isLoading } = useUserFiles(
+    selectedDatasetId === "all" ? undefined : selectedDatasetId,
+  );
 
   if (!isConnected) {
     return (
@@ -59,21 +78,39 @@ function ProfilePage() {
         <div>
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold">Your Files</h2>
-            {files && files.length > 0 && (
-              <span className="text-sm text-gray-400">
-                {files.length} {files.length === 1 ? "file" : "files"}
-              </span>
-            )}
+            <DatasetSelector
+              datasets={datasets || []}
+              selectedDatasetId={selectedDatasetId}
+              onSelectDataset={setSelectedDatasetId}
+              fileCount={files?.length}
+              isLoading={isLoadingDatasets}
+            />
           </div>
 
-          {isLoading ? (
+          {(isLoading || isLoadingDatasets) && !files ? (
             <LoadingSpinner message="Loading your files..." />
           ) : files && files.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {files.map((file, index) => (
-                <FileCard key={file.pieceCid + index} file={file} />
-              ))}
+              {files.map((file, index) => {
+                const dataset = datasets?.find(
+                  (d) => d.dataSetId.toString() === file.dataSetId?.toString(),
+                );
+                return (
+                  <FileCard
+                    key={file.pieceCid + index}
+                    file={file}
+                    dataset={dataset}
+                  />
+                );
+              })}
             </div>
+          ) : !isLoadingDatasets && (!datasets || datasets.length === 0) ? (
+            <EmptyState
+              title="No datasets found"
+              description="Create your first dataset using the button above to start uploading files"
+              actionLabel="Get Started"
+              onAction={() => {}}
+            />
           ) : (
             <EmptyState
               title="No files uploaded yet"
@@ -89,6 +126,7 @@ function ProfilePage() {
       <UploadModal
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
+        selectedDatasetId={selectedDatasetId}
       />
     </div>
   );

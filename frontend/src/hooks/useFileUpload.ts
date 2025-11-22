@@ -23,12 +23,6 @@ export type FileUploadMetadata = {
   isPrivate?: boolean;
 };
 
-/**
- * Hook for uploading files to Filecoin with metadata and progress tracking.
- * Workflow: File processing → validation → dataset creation → provider upload → piece confirmation.
- *
- * @returns Mutation object with progress (0-100), status message, uploaded info, and reset function
- */
 export const useFileUpload = () => {
   const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState("");
@@ -45,9 +39,11 @@ export const useFileUpload = () => {
     mutationFn: async ({
       file,
       metadata,
+      datasetId,
     }: {
       file: File;
       metadata: FileUploadMetadata;
+      datasetId?: number;
       withCDN?: boolean;
     }) => {
       if (!address) throw new Error("Address not found");
@@ -65,10 +61,15 @@ export const useFileUpload = () => {
       if (!synapse) throw new Error("Synapse not initialized");
 
       const storageService = await synapse.storage.createContext({
+        ...(datasetId && { dataSetId: datasetId }),
         callbacks: {
           onDataSetResolved: (info) => {
             console.log("Dataset resolved:", info);
-            setStatus("🔗 Existing dataset found and resolved");
+            setStatus(
+              datasetId
+                ? "🔗 Using selected dataset"
+                : "🔗 Existing dataset found and resolved",
+            );
             setProgress(30);
           },
           onProviderSelected: (provider) => {
@@ -156,7 +157,6 @@ export const useFileUpload = () => {
     },
   });
 
-  /** Resets upload state for new upload */
   const handleReset = () => {
     setProgress(0);
     setUploadedInfo(null);

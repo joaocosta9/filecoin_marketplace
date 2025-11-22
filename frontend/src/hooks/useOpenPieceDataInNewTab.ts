@@ -2,14 +2,6 @@ import { useMutation } from "@tanstack/react-query";
 import { useEthersSigner } from "./useEthers";
 import { useAccount } from "wagmi";
 
-/**
- * Hook for opening piece data in a new tab.
- * Opens the piece data in a new tab using the piece CID and URL.
- * @param pieceCid - Piece CID identifying the file on Filecoin
- * @param isCDN - Whether the piece is stored on CDN
- * @param url - URL of the PDP service
- * @returns Mutation object for opening piece data in a new tab
- */
 export const useOpenPieceDataInNewTab = (
   pieceCid: string,
   isCDN: boolean,

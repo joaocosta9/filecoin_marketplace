@@ -1,15 +1,20 @@
-import { DollarSign, Download, Loader2, Eye } from "lucide-react";
+import { DollarSign, Download, Loader2, Eye, Trash2 } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { useCategory, useFileOperations, type UserFile } from "@/hooks";
 
 interface FileCardProps {
   file: UserFile;
+  dataset?: any;
   onClick?: () => void;
 }
 
-export function FileCard({ file, onClick }: FileCardProps) {
+export function FileCard({ file, dataset, onClick }: FileCardProps) {
   const { icon: Icon, gradient, bgColor } = useCategory(file.category);
-  const { download, view } = useFileOperations(file);
+  const {
+    download,
+    view,
+    delete: deleteFile,
+  } = useFileOperations(file, dataset);
   const hasPrice = file.price && parseFloat(file.price) > 0;
 
   return (
@@ -93,6 +98,28 @@ export function FileCard({ file, onClick }: FileCardProps) {
               <Download size={16} className="text-gray-400" />
             )}
           </button>
+          {deleteFile.isAvailable && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (confirm("Are you sure you want to delete this file?")) {
+                  deleteFile.mutation.mutate({
+                    dataSet: deleteFile.dataset!,
+                    pieceId: deleteFile.pieceId!,
+                  });
+                }
+              }}
+              disabled={deleteFile.mutation.isPending}
+              className="p-2 hover:bg-red-600/50 rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+              title="Delete file"
+            >
+              {deleteFile.mutation.isPending ? (
+                <Loader2 size={16} className="text-red-400 animate-spin" />
+              ) : (
+                <Trash2 size={16} className="text-red-400" />
+              )}
+            </button>
+          )}
         </div>
       </CardFooter>
 

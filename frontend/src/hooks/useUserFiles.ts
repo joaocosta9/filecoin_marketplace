@@ -17,6 +17,7 @@ export type UserFile = {
   price?: string;
   serviceURL?: string;
   isCDN?: boolean;
+  encrypted?: string;
 };
 
 export const useUserFiles = (datasetId?: string) => {

@@ -7,6 +7,11 @@ import type { Category } from "@/constants/categories";
 import { saveProduct } from "@/api/user";
 import { useWriteFilePlaceSaleSetContent } from "../../wagmi.generated";
 import { parseUnits } from "viem";
+import { Lit } from "@/lib/lit";
+
+const MARKETPLACE_CONTRACT_ADDRESS =
+  "0x035dD367FD1F11260AD161Af6390Cb144CF113a6";
+const CHAIN = "filecoinCalibrationTestnet";
 
 export type UploadedInfo = {
   fileName?: string;
@@ -53,7 +58,32 @@ export const useFileUpload = () => {
       setUploadedInfo(null);
       setStatus("🔄 Initializing file upload to Filecoin...");
 
-      const arrayBuffer = await file.arrayBuffer();
+      let fileToUpload = file;
+
+      if (metadata.price && metadata.price > 0) {
+        setStatus("🔐 Encrypting file with Lit Protocol...");
+        setProgress(10);
+
+        const lit = new Lit(CHAIN, address, MARKETPLACE_CONTRACT_ADDRESS);
+        await lit.connect();
+        const encryptedPayload = await lit.encryptFile(file);
+        console.log("encryptedPayload", encryptedPayload);
+        if (!encryptedPayload) {
+          throw new Error("Failed to encrypt file");
+        }
+        console.log("2", encryptedPayload);
+        const encryptedBlob = new Blob([JSON.stringify(encryptedPayload)], {
+          type: "application/json",
+        });
+        fileToUpload = new File([encryptedBlob], `${file.name}.encrypted`, {
+          type: "application/json",
+        });
+
+        setStatus("✅ File encrypted successfully");
+        setProgress(20);
+      }
+
+      const arrayBuffer = await fileToUpload.arrayBuffer();
       const uint8ArrayBytes = new Uint8Array(arrayBuffer);
 
       setStatus("🔗 Setting up storage service and dataset...");
@@ -92,7 +122,7 @@ export const useFileUpload = () => {
         },
         onUploadComplete: (piece) => {
           setStatus(
-            `📊 File uploaded! Signing msg to add pieces to the dataset`
+            `📊 File uploaded! Signing msg to add pieces to the dataset`,
           );
           setUploadedInfo((prev) => ({
             ...prev,
@@ -104,7 +134,7 @@ export const useFileUpload = () => {
         },
         onPieceAdded: (hash) => {
           setStatus(
-            `🔄 Waiting for transaction to be confirmed on chain (txHash: ${hash})`
+            `🔄 Waiting for transaction to be confirmed on chain (txHash: ${hash})`,
           );
           setUploadedInfo((prev) => ({
             ...prev,
@@ -142,13 +172,15 @@ export const useFileUpload = () => {
       queryClient.invalidateQueries({
         queryKey: ["user-files", address, chainId],
       });
-      const productId = await saveProduct(
-        data.pieceCid,
-        address as `0x{string}`
-      );
-      writeContract({
-        args: [productId, parseUnits(data.price.toString(), 18)],
-      });
+      // Save product to backend for tracking
+      await saveProduct(data.pieceCid, address as `0x${string}`);
+
+      // Set content in Sale contract with UUID and price
+      if (data.price > 0) {
+        writeContract({
+          args: [data.pieceCid, parseUnits(data.price.toString(), 18)],
+        });
+      }
     },
     onError: (error) => {
       console.error("Upload failed:", error);

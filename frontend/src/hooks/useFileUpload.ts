@@ -4,6 +4,9 @@ import { useAccount } from "wagmi";
 import { useSynapse } from "@/hooks/useSynapse";
 import { useEthersSigner } from "@/hooks/useEthers";
 import type { Category } from "@/constants/categories";
+import { saveProduct } from "@/api/user";
+import { useWriteFilePlaceSaleSetContent } from "../../wagmi.generated";
+import { parseUnits } from "viem";
 
 export type UploadedInfo = {
   fileName?: string;
@@ -35,6 +38,7 @@ export const useFileUpload = () => {
   const queryClient = useQueryClient();
 
   const { data: synapse } = useSynapse(false);
+  const { writeContract } = useWriteFilePlaceSaleSetContent();
 
   const mutation = useMutation({
     mutationKey: ["upload", address, chainId],
@@ -87,7 +91,7 @@ export const useFileUpload = () => {
         },
         onUploadComplete: (piece) => {
           setStatus(
-            `📊 File uploaded! Signing msg to add pieces to the dataset`,
+            `📊 File uploaded! Signing msg to add pieces to the dataset`
           );
           setUploadedInfo((prev) => ({
             ...prev,
@@ -99,7 +103,7 @@ export const useFileUpload = () => {
         },
         onPieceAdded: (hash) => {
           setStatus(
-            `🔄 Waiting for transaction to be confirmed on chain (txHash: ${hash})`,
+            `🔄 Waiting for transaction to be confirmed on chain (txHash: ${hash})`
           );
           setUploadedInfo((prev) => ({
             ...prev,
@@ -119,8 +123,12 @@ export const useFileUpload = () => {
         fileSize: file.size,
         pieceCid: pieceCid.toV1().toString(),
       }));
+      return {
+        pieceCid: pieceCid.toV1().toString(),
+        price: metadata.price || 0,
+      };
     },
-    onSuccess: () => {
+    onSuccess: async (data: { pieceCid: string; price: number }) => {
       alert("File successfully stored on Filecoin!");
       setStatus("🎉 File successfully stored on Filecoin!");
       setProgress(100);
@@ -132,6 +140,13 @@ export const useFileUpload = () => {
       });
       queryClient.invalidateQueries({
         queryKey: ["user-files", address, chainId],
+      });
+      const productId = await saveProduct(
+        data.pieceCid,
+        address as `0x{string}`
+      );
+      writeContract({
+        args: [productId, parseUnits(data.price.toString(), 18)],
       });
     },
     onError: (error) => {

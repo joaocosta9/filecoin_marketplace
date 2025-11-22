@@ -3,6 +3,12 @@ import { getUserProducts, saveProduct, saveUser } from "./db/user.js";
 
 const server = fastify();
 
+// Enable CORS for frontend communication
+server.register(import("@fastify/cors"), {
+  origin: true, // Allow all origins in development
+  credentials: true,
+});
+
 server.get("/ping", async (request, reply) => {
   return "pong\n";
 });

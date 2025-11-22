@@ -10,7 +10,7 @@ import { parseUnits } from "viem";
 import { Lit } from "@/lib/lit";
 
 const MARKETPLACE_CONTRACT_ADDRESS =
-  "0x035dD367FD1F11260AD161Af6390Cb144CF113a6";
+  "0xC73C6a51eA83E63c2bB589813930c54ccFB68B91";
 const CHAIN = "filecoinCalibrationTestnet";
 
 export type UploadedInfo = {
@@ -98,7 +98,7 @@ export const useFileUpload = () => {
             setStatus(
               datasetId
                 ? "🔗 Using selected dataset"
-                : "🔗 Existing dataset found and resolved",
+                : "🔗 Existing dataset found and resolved"
             );
             setProgress(30);
           },
@@ -122,7 +122,7 @@ export const useFileUpload = () => {
         },
         onUploadComplete: (piece) => {
           setStatus(
-            `📊 File uploaded! Signing msg to add pieces to the dataset`,
+            `📊 File uploaded! Signing msg to add pieces to the dataset`
           );
           setUploadedInfo((prev) => ({
             ...prev,
@@ -134,7 +134,7 @@ export const useFileUpload = () => {
         },
         onPieceAdded: (hash) => {
           setStatus(
-            `🔄 Waiting for transaction to be confirmed on chain (txHash: ${hash})`,
+            `🔄 Waiting for transaction to be confirmed on chain (txHash: ${hash})`
           );
           setUploadedInfo((prev) => ({
             ...prev,
@@ -175,7 +175,7 @@ export const useFileUpload = () => {
       // Save product to backend for tracking
       await saveProduct(data.pieceCid, address as `0x${string}`);
 
-      // Set content in Sale contract with UUID and price
+      // Set content in Sale contract with CID and price
       if (data.price > 0) {
         writeContract({
           args: [data.pieceCid, parseUnits(data.price.toString(), 18)],

@@ -7,7 +7,7 @@ import { Lit } from "@/lib/lit";
 import type { EncryptToJsonPayload } from "@lit-protocol/encryption/node_modules/@lit-protocol/types";
 
 const MARKETPLACE_CONTRACT_ADDRESS =
-  "0x035dD367FD1F11260AD161Af6390Cb144CF113a6";
+  "0xC73C6a51eA83E63c2bB589813930c54ccFB68B91";
 const CHAIN = "filecoinCalibrationTestnet";
 
 const identifyFileType = async (uint8Array: Uint8Array) =>
@@ -17,7 +17,7 @@ export const useDownloadPiece = (
   pieceCid: string,
   filename: string,
   encrypted?: boolean,
-  creatorAddress?: string,
+  creatorAddress?: string
 ) => {
   const { chainId, address } = useAccount();
   const signer = useEthersSigner({ chainId });

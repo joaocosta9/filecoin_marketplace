@@ -21,7 +21,7 @@ export class Lit {
   constructor(
     chain: SupportedChain,
     creatorAddress: string,
-    contractAddress?: string,
+    contractAddress?: string
   ) {
     this.chain = chain;
     this.litNodeClient = new LitJsSdk.LitNodeClient({
@@ -51,7 +51,7 @@ export class Lit {
               type: "address",
             },
             {
-              name: "uuid",
+              name: "cid",
               type: "string",
             },
           ],
@@ -92,7 +92,7 @@ export class Lit {
   }
 
   async decryptFile(
-    payload: EncryptToJsonPayload,
+    payload: EncryptToJsonPayload
   ): Promise<{ decryptedFile: string | Uint8Array }> {
     await this.litNodeClient.disconnect();
     await this.litNodeClient.connect();

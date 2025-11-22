@@ -6,13 +6,15 @@ import UploadModal from "@/components/UploadModal";
 import { useUserFiles } from "@/hooks/useUserFiles";
 import { FileCard } from "@/components/FileCard";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/EmptyState";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 export const Route = createFileRoute("/profile")({
   component: ProfilePage,
 });
 
 function ProfilePage() {
-  const { address, isConnected, chainId } = useAccount();
+  const { address, isConnected } = useAccount();
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
   const { data: files, isLoading } = useUserFiles();
@@ -65,10 +67,7 @@ function ProfilePage() {
           </div>
 
           {isLoading ? (
-            <div className="text-center py-20">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
-              <p className="text-gray-400">Loading your files...</p>
-            </div>
+            <LoadingSpinner message="Loading your files..." />
           ) : files && files.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {files.map((file, index) => (
@@ -76,24 +75,12 @@ function ProfilePage() {
               ))}
             </div>
           ) : (
-            <div className="p-12 bg-gray-800/30 backdrop-blur-sm rounded-2xl border border-gray-700/50 text-center">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-700/50 mb-4">
-                <Plus className="text-gray-500" size={32} />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">
-                No files uploaded yet
-              </h3>
-              <p className="text-gray-400 mb-6">
-                Start building your marketplace by uploading your first file
-              </p>
-              <button
-                onClick={() => setIsUploadModalOpen(true)}
-                className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-xl transition-all shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 font-medium"
-              >
-                <Plus size={20} />
-                <span>Upload Your First File</span>
-              </button>
-            </div>
+            <EmptyState
+              title="No files uploaded yet"
+              description="Start building your marketplace by uploading your first file"
+              actionLabel="Upload Your First File"
+              onAction={() => setIsUploadModalOpen(true)}
+            />
           )}
         </div>
       </div>

@@ -1,14 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useAccount } from "wagmi";
-import { Plus, DollarSign, ExternalLink } from "lucide-react";
+import { Plus } from "lucide-react";
 import UploadModal from "@/components/UploadModal";
 import { useUserFiles } from "@/hooks/useUserFiles";
-import {
-  getCategoryIcon,
-  getCategoryColor,
-  getCategoryBg,
-} from "@/lib/category-icons";
+import { FileCard } from "@/components/FileCard";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/profile")({
   component: ProfilePage,
@@ -44,13 +41,14 @@ function ProfilePage() {
               </h1>
               <p className="text-gray-400 font-mono text-sm">{address}</p>
             </div>
-            <button
+            <Button
+              size="lg"
+              className="bg-blue-600 hover:bg-blue-700"
               onClick={() => setIsUploadModalOpen(true)}
-              className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-xl transition-all shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-105 font-medium"
             >
               <Plus size={20} />
               <span>Upload File</span>
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -72,69 +70,9 @@ function ProfilePage() {
             </div>
           ) : files && files.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {files.map((file, index) => {
-                const Icon = getCategoryIcon(file.category);
-                const gradient = getCategoryColor(file.category);
-                const bgColor = getCategoryBg(file.category);
-                const hasPrice = file.price && parseFloat(file.price) > 0;
-
-                return (
-                  <div
-                    key={file.pieceCid + index}
-                    className="group relative bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700/50 hover:border-gray-600 transition-all duration-300 overflow-hidden hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-1"
-                  >
-                    {/* Category gradient header */}
-                    <div
-                      className={`h-32 bg-gradient-to-br ${gradient} opacity-80 relative overflow-hidden`}
-                    >
-                      <div className="absolute inset-0 bg-black/20"></div>
-                      <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
-                        <div
-                          className={`p-3 rounded-xl ${bgColor} backdrop-blur-sm border border-white/10`}
-                        >
-                          <Icon className="text-white" size={24} />
-                        </div>
-                        {hasPrice && (
-                          <div className="flex items-center space-x-1 px-3 py-1.5 bg-black/40 backdrop-blur-sm rounded-lg border border-white/10">
-                            <DollarSign size={16} className="text-yellow-300" />
-                            <span className="text-sm font-bold text-white">
-                              {file.price}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-5">
-                      <h3 className="text-lg font-bold mb-2 line-clamp-2 group-hover:text-blue-400 transition-colors">
-                        {file.title || "Untitled File"}
-                      </h3>
-                      {file.description && (
-                        <p className="text-sm text-gray-400 mb-4 line-clamp-2 min-h-[2.5rem]">
-                          {file.description}
-                        </p>
-                      )}
-
-                      <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-700/50">
-                        {file.category && (
-                          <span
-                            className={`px-3 py-1 rounded-lg text-xs font-medium ${bgColor} text-gray-300 border border-white/5`}
-                          >
-                            {file.category}
-                          </span>
-                        )}
-                        <button className="opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-gray-700/50 rounded-lg">
-                          <ExternalLink size={16} className="text-gray-400" />
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Hover overlay effect */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-blue-500/0 to-blue-500/0 group-hover:from-blue-500/5 group-hover:to-transparent transition-all pointer-events-none"></div>
-                  </div>
-                );
-              })}
+              {files.map((file, index) => (
+                <FileCard key={file.pieceCid + index} file={file} />
+              ))}
             </div>
           ) : (
             <div className="p-12 bg-gray-800/30 backdrop-blur-sm rounded-2xl border border-gray-700/50 text-center">

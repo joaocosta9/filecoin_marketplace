@@ -20,8 +20,11 @@ export type UserFile = {
   encrypted?: string;
 };
 
-export const useUserFiles = (datasetId?: string) => {
-  const { address } = useAccount();
+export const useUserFiles = (datasetId?: string, targetAddress?: string) => {
+  const { address: connectedAddress } = useAccount();
+  const address = (targetAddress || connectedAddress) as
+    | `0x${string}`
+    | undefined;
   const { data: datasets, isLoading, error } = useDataSets({ address });
 
   const files = useMemo(() => {
@@ -60,5 +63,6 @@ export const useUserFiles = (datasetId?: string) => {
     data: files,
     isLoading,
     error,
+    ownerAddress: address,
   };
 };

@@ -100,6 +100,7 @@ function ProfilePage() {
                     key={file.pieceCid + index}
                     file={file}
                     dataset={dataset}
+                    ownerAddress={address}
                   />
                 );
               })}

@@ -11,6 +11,9 @@ contract Sale {
     // Mapping to store content by creator address and CID
     mapping(address => mapping(string => Content)) public contents;
 
+    // Array to store all content items for enumeration
+    Content[] private allContents;
+
     // Mapping to store purchases: buyer => creator => cid => bool
     mapping(address => mapping(address => mapping(string => bool))) public purchases;
 
@@ -29,7 +32,9 @@ contract Sale {
         require(price > 0, "Price must be greater than 0");
         require(bytes(cid).length > 0, "CID cannot be empty");
 
-        contents[msg.sender][cid] = Content({creator: msg.sender, cid: cid, price: price, exists: true});
+        Content memory newContent = Content({creator: msg.sender, cid: cid, price: price, exists: true});
+        contents[msg.sender][cid] = newContent;
+        allContents.push(newContent);
 
         // Emit event
         emit ContentCreated(msg.sender, cid, price);
@@ -63,5 +68,13 @@ contract Sale {
     function getContent(address creator, string calldata cid) external view returns (uint256 price, bool exists) {
         Content storage content = contents[creator][cid];
         return (content.price, content.exists);
+    }
+
+    /**
+     * @dev Get all stored contents
+     * @return Array of all content items
+     */
+    function getAllContents() external view returns (Content[] memory) {
+        return allContents;
     }
 }

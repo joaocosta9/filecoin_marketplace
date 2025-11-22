@@ -11,7 +11,7 @@ export default defineConfig({
       namePrefix: "FilePlace",
       deployments: {
         Sale: {
-          314159: "0xC73C6a51eA83E63c2bB589813930c54ccFB68B91",
+          314159: "0x03996d8d526F82BdE5dD223499946aaf817AE30B",
         },
       },
     }),

@@ -10,7 +10,7 @@ import { parseUnits } from "viem";
 import { Lit } from "@/lib/lit";
 
 const MARKETPLACE_CONTRACT_ADDRESS =
-  "0xC73C6a51eA83E63c2bB589813930c54ccFB68B91";
+  "0x03996d8d526F82BdE5dD223499946aaf817AE30B";
 const CHAIN = "filecoinCalibrationTestnet";
 
 export type UploadedInfo = {

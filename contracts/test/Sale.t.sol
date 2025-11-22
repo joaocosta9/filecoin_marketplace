@@ -143,4 +143,60 @@ contract SaleTest is Test {
         assertTrue(contentPurchase.purchases(buyer, creator, cid));
         assertTrue(contentPurchase.purchases(buyer, creator2, cid2));
     }
+
+    function testGetAllContentsEmpty() public view {
+        Sale.Content[] memory contents = contentPurchase.getAllContents();
+        assertEq(contents.length, 0);
+    }
+
+    function testGetAllContentsSingle() public {
+        vm.prank(creator);
+        contentPurchase.setContent(cid, price);
+
+        Sale.Content[] memory contents = contentPurchase.getAllContents();
+        assertEq(contents.length, 1);
+        assertEq(contents[0].creator, creator);
+        assertEq(contents[0].cid, cid);
+        assertEq(contents[0].price, price);
+        assertTrue(contents[0].exists);
+    }
+
+    function testGetAllContentsMultiple() public {
+        address creator2 = makeAddr("creator2");
+        string memory cid2 = "test-cid-456";
+        uint256 price2 = 2 ether;
+        
+        string memory cid3 = "test-cid-789";
+        uint256 price3 = 0.5 ether;
+
+        vm.prank(creator);
+        contentPurchase.setContent(cid, price);
+        
+        vm.prank(creator2);
+        contentPurchase.setContent(cid2, price2);
+        
+        vm.prank(creator);
+        contentPurchase.setContent(cid3, price3);
+
+        Sale.Content[] memory contents = contentPurchase.getAllContents();
+        assertEq(contents.length, 3);
+        
+        // First content
+        assertEq(contents[0].creator, creator);
+        assertEq(contents[0].cid, cid);
+        assertEq(contents[0].price, price);
+        assertTrue(contents[0].exists);
+        
+        // Second content
+        assertEq(contents[1].creator, creator2);
+        assertEq(contents[1].cid, cid2);
+        assertEq(contents[1].price, price2);
+        assertTrue(contents[1].exists);
+        
+        // Third content
+        assertEq(contents[2].creator, creator);
+        assertEq(contents[2].cid, cid3);
+        assertEq(contents[2].price, price3);
+        assertTrue(contents[2].exists);
+    }
 }

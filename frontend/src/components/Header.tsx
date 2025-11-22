@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { useFund } from "@/hooks/useFund";
 import { useAccount } from "wagmi";
 import { Button } from "./ui/button";
-import { User } from "lucide-react";
+import { User, Store } from "lucide-react";
 
 export default function Header() {
   const { isConnected } = useAccount();
@@ -19,27 +19,36 @@ export default function Header() {
           <span className="font-bold text-lg">Filecoin Marketplace</span>
         </Link>
         <div className="flex items-center gap-3">
-          {isConnected && (
-            <button
-              className="bg-blue-600/80 hover:bg-blue-600 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors font-medium"
-              onClick={() => {
-                fund();
-              }}
-              disabled={isPending || !isConnected}
+          <Button asChild variant="outline">
+            <Link
+              to="/marketplace"
+              className="flex items-center gap-2 text-black"
             >
-              {isPending ? "Funding..." : "Fund"}
-            </button>
-          )}
+              <Store size={16} />
+              Marketplace
+            </Link>
+          </Button>
           {isConnected && (
-            <Button asChild variant="outline">
-              <Link
-                to="/profile"
-                className="flex items-center gap-2 text-black"
+            <>
+              <Button asChild variant="outline">
+                <Link
+                  to="/profile"
+                  className="flex items-center gap-2 text-black"
+                >
+                  <User size={16} />
+                  My Marketplace
+                </Link>
+              </Button>
+              <button
+                className="bg-blue-600/80 hover:bg-blue-600 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors font-medium"
+                onClick={() => {
+                  fund();
+                }}
+                disabled={isPending || !isConnected}
               >
-                <User size={16} />
-                My Marketplace
-              </Link>
-            </Button>
+                {isPending ? "Funding..." : "Fund"}
+              </button>
+            </>
           )}
           <ConnectButton />
         </div>

@@ -1,14 +1,18 @@
-import { DollarSign, Download, Loader2, Eye, Trash2 } from "lucide-react";
+import { DollarSign, Download, Loader2, Eye, Trash2, ShoppingCart } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { useCategory, useFileOperations, type UserFile } from "@/hooks";
+import { useAccount } from "wagmi";
 
 interface FileCardProps {
   file: UserFile;
   dataset?: any;
   onClick?: () => void;
+  ownerAddress?: string;
+  showOwner?: boolean;
 }
 
-export function FileCard({ file, dataset, onClick }: FileCardProps) {
+export function FileCard({ file, dataset, onClick, ownerAddress, showOwner }: FileCardProps) {
+  const { address: connectedAddress } = useAccount();
   const { icon: Icon, gradient, bgColor } = useCategory(file.category);
   const {
     download,
@@ -16,6 +20,7 @@ export function FileCard({ file, dataset, onClick }: FileCardProps) {
     delete: deleteFile,
   } = useFileOperations(file, dataset);
   const hasPrice = file.price && parseFloat(file.price) > 0;
+  const isOwner = connectedAddress && ownerAddress && connectedAddress.toLowerCase() === ownerAddress.toLowerCase();
 
   return (
     <Card
@@ -47,6 +52,11 @@ export function FileCard({ file, dataset, onClick }: FileCardProps) {
         <h3 className="text-lg text-white font-bold mb-2 line-clamp-2 group-hover:text-blue-400 transition-colors">
           {file.title || "Untitled File"}
         </h3>
+        {showOwner && ownerAddress && (
+          <p className="text-xs text-gray-500 mb-2 font-mono">
+            by {ownerAddress.slice(0, 6)}...{ownerAddress.slice(-4)}
+          </p>
+        )}
         <div className="min-h-10 mb-4">
           {file.description ? (
             <p className="text-sm text-gray-400 line-clamp-2">
@@ -68,37 +78,55 @@ export function FileCard({ file, dataset, onClick }: FileCardProps) {
           </span>
         )}
         <div className="flex items-center gap-2 transition-opacity">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              view.mutate();
-            }}
-            disabled={view.isPending || !view.isAvailable}
-            className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
-            title="View file"
-          >
-            {view.isPending ? (
-              <Loader2 size={16} className="text-gray-400 animate-spin" />
-            ) : (
-              <Eye size={16} className="text-gray-400" />
-            )}
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              download.mutate();
-            }}
-            disabled={download.isPending}
-            className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
-            title="Download file"
-          >
-            {download.isPending ? (
-              <Loader2 size={16} className="text-gray-400 animate-spin" />
-            ) : (
-              <Download size={16} className="text-gray-400" />
-            )}
-          </button>
-          {deleteFile.isAvailable && (
+          {hasPrice && !isOwner ? (
+            // Show only buy button for paid files (not owner)
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                // TODO: Implement buy functionality
+                alert("Buy functionality coming soon!");
+              }}
+              className="p-2 hover:bg-green-600/50 rounded-lg transition-colors cursor-pointer"
+              title="Buy file"
+            >
+              <ShoppingCart size={16} className="text-green-400" />
+            </button>
+          ) : (
+            // Show view/download for free files or if owner
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  view.mutate();
+                }}
+                disabled={view.isPending || !view.isAvailable}
+                className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+                title="View file"
+              >
+                {view.isPending ? (
+                  <Loader2 size={16} className="text-gray-400 animate-spin" />
+                ) : (
+                  <Eye size={16} className="text-gray-400" />
+                )}
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  download.mutate();
+                }}
+                disabled={download.isPending}
+                className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+                title="Download file"
+              >
+                {download.isPending ? (
+                  <Loader2 size={16} className="text-gray-400 animate-spin" />
+                ) : (
+                  <Download size={16} className="text-gray-400" />
+                )}
+              </button>
+            </>
+          )}
+          {isOwner && deleteFile.isAvailable && (
             <button
               onClick={(e) => {
                 e.stopPropagation();

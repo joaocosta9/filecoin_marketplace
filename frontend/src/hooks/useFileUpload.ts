@@ -34,7 +34,6 @@ export const useFileUpload = () => {
   const signer = useEthersSigner({ chainId });
   const queryClient = useQueryClient();
 
-  // Get default Synapse instance (without CDN)
   const { data: synapse } = useSynapse(false);
 
   const mutation = useMutation({
@@ -54,7 +53,6 @@ export const useFileUpload = () => {
       setUploadedInfo(null);
       setStatus("🔄 Initializing file upload to Filecoin...");
 
-      // Convert File to Uint8Array for Synapse SDK compatibility
       const arrayBuffer = await file.arrayBuffer();
       const uint8ArrayBytes = new Uint8Array(arrayBuffer);
 
@@ -62,7 +60,6 @@ export const useFileUpload = () => {
       setProgress(25);
       if (!synapse) throw new Error("Synapse not initialized");
 
-      // Progress callbacks track dataset creation and provider selection
       const storageService = await synapse.storage.createContext({
         callbacks: {
           onDataSetResolved: (info) => {
@@ -80,7 +77,6 @@ export const useFileUpload = () => {
       setStatus("📁 Uploading file to storage provider...");
       setProgress(55);
 
-      // Upload with callbacks tracking completion, piece addition, and confirmation
       const { pieceCid } = await storageService.upload(uint8ArrayBytes, {
         metadata: {
           title: metadata.title,
@@ -133,6 +129,9 @@ export const useFileUpload = () => {
       });
       queryClient.invalidateQueries({
         queryKey: ["datasets", address, chainId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["user-files", address, chainId],
       });
     },
     onError: (error) => {

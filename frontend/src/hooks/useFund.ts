@@ -4,10 +4,6 @@ import { ethers } from "ethers";
 import { useAccount } from "wagmi";
 import { useSynapse } from "./useSynapse";
 
-/**
- * Hook for funding account with USDFC using TanStack Mutation.
- * Deposits 2.5 USDFC and approves warm storage operator.
- */
 export const useFund = () => {
   const { address } = useAccount();
   const { data: synapse } = useSynapse();
@@ -31,7 +27,6 @@ export const useFund = () => {
       return { success: true };
     },
     onSuccess: () => {
-      // Invalidate synapse query to refresh any balance data
       queryClient.invalidateQueries({ queryKey: ["synapse", address] });
     },
   });

@@ -3,65 +3,65 @@ pragma solidity ^0.8.13;
 contract Sale {
     struct Content {
         address creator;
-        string uuid;
+        string cid;
         uint256 price;
         bool exists;
     }
 
-    // Mapping to store content by creator address and UUID
+    // Mapping to store content by creator address and CID
     mapping(address => mapping(string => Content)) public contents;
 
-    // Mapping to store purchases: buyer => creator => uuid => bool
+    // Mapping to store purchases: buyer => creator => cid => bool
     mapping(address => mapping(address => mapping(string => bool))) public purchases;
 
-    event ContentCreated(address indexed creator, string uuid, uint256 price);
+    event ContentCreated(address indexed creator, string cid, uint256 price);
 
-    event Sold(address indexed buyer, address indexed creator, string uuid, uint256 amount);
+    event Sold(address indexed buyer, address indexed creator, string cid, uint256 amount);
 
     constructor() {}
 
     /**
-     * @dev Set content with UUID and price
-     * @param uuid The unique identifier for the content
+     * @dev Set content with CID and price
+     * @param cid The unique identifier for the content
      * @param price The price in wei for purchasing this content
      */
-    function setContent(string calldata uuid, uint256 price) external {
+    function setContent(string calldata cid, uint256 price) external {
         require(price > 0, "Price must be greater than 0");
-        require(bytes(uuid).length > 0, "UUID cannot be empty");
+        require(bytes(cid).length > 0, "CID cannot be empty");
 
-        contents[msg.sender][uuid] = Content({creator: msg.sender, uuid: uuid, price: price, exists: true});
+        contents[msg.sender][cid] = Content({creator: msg.sender, cid: cid, price: price, exists: true});
 
         // Emit event
-        emit ContentCreated(msg.sender, uuid, price);
+        emit ContentCreated(msg.sender, cid, price);
     }
 
     /**
-     * @dev Buy content by creator address and UUID
+     * @dev Buy content by creator address and CID
      * @param creator The creator's address
-     * @param uuid The UUID of the content to purchase
+     * @param cid The CID of the content to purchase
      */
-    function buy(address creator, string calldata uuid) external payable {
+    function buy(address creator, string calldata cid) external payable {
         require(creator != address(0), "Invalid creator address");
-        require(bytes(uuid).length > 0, "UUID cannot be empty");
+        require(bytes(cid).length > 0, "CID cannot be empty");
 
-        Content storage content = contents[creator][uuid];
+        Content storage content = contents[creator][cid];
         require(content.exists, "Content does not exist");
         require(msg.value >= content.price, "Insufficient payment");
 
         payable(content.creator).transfer(msg.value);
 
-        purchases[msg.sender][creator][uuid] = true;
+        purchases[msg.sender][creator][cid] = true;
 
-        emit Sold(msg.sender, creator, uuid, msg.value);
+        emit Sold(msg.sender, creator, cid, msg.value);
     }
 
     /**
-     * @dev Get content information by creator address and UUID
+     * @dev Get content information by creator address and CID
      * @param creator The creator's address
-     * @param uuid The UUID of the content
+     * @param cid The CID of the content
      */
-    function getContent(address creator, string calldata uuid) external view returns (uint256 price, bool exists) {
-        Content storage content = contents[creator][uuid];
+    function getContent(address creator, string calldata cid) external view returns (uint256 price, bool exists) {
+        Content storage content = contents[creator][cid];
         return (content.price, content.exists);
     }
 }

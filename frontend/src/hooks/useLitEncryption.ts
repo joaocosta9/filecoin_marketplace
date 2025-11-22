@@ -3,20 +3,20 @@ import { Lit } from "@/lib/lit";
 import type { EncryptToJsonPayload } from "@lit-protocol/encryption/node_modules/@lit-protocol/types";
 
 const MARKETPLACE_CONTRACT_ADDRESS =
-  "0x035dD367FD1F11260AD161Af6390Cb144CF113a6";
+  "0xC73C6a51eA83E63c2bB589813930c54ccFB68B91";
 const CHAIN = "filecoinCalibrationTestnet";
 
-export const useLitEncryption = (creatorAddress: string, uuid: string) => {
+export const useLitEncryption = (creatorAddress: string, cid: string) => {
   const [isEncrypting, setIsEncrypting] = useState(false);
   const [isDecrypting, setIsDecrypting] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const encryptFile = async (
-    file: File,
+    file: File
   ): Promise<EncryptToJsonPayload | null> => {
-    if (!creatorAddress || !uuid) {
+    if (!creatorAddress || !cid) {
       setError(
-        new Error("Creator address and UUID are required for encryption"),
+        new Error("Creator address and CID are required for encryption")
       );
       return null;
     }
@@ -40,11 +40,11 @@ export const useLitEncryption = (creatorAddress: string, uuid: string) => {
   };
 
   const decryptFile = async (
-    payload: EncryptToJsonPayload,
+    payload: EncryptToJsonPayload
   ): Promise<Blob | null> => {
-    if (!creatorAddress || !uuid) {
+    if (!creatorAddress || !cid) {
       setError(
-        new Error("Creator address and UUID are required for decryption"),
+        new Error("Creator address and CID are required for decryption")
       );
       return null;
     }

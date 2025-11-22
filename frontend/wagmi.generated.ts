@@ -253,7 +253,7 @@ export const filePlaceIMulticall3Abi = [
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0x035dD367FD1F11260AD161Af6390Cb144CF113a6)
+ * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0xC73C6a51eA83E63c2bB589813930c54ccFB68B91)
  */
 export const filePlaceSaleAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -261,7 +261,7 @@ export const filePlaceSaleAbi = [
     type: "function",
     inputs: [
       { name: "creator", internalType: "address", type: "address" },
-      { name: "uuid", internalType: "string", type: "string" },
+      { name: "cid", internalType: "string", type: "string" },
     ],
     name: "buy",
     outputs: [],
@@ -276,7 +276,7 @@ export const filePlaceSaleAbi = [
     name: "contents",
     outputs: [
       { name: "creator", internalType: "address", type: "address" },
-      { name: "uuid", internalType: "string", type: "string" },
+      { name: "cid", internalType: "string", type: "string" },
       { name: "price", internalType: "uint256", type: "uint256" },
       { name: "exists", internalType: "bool", type: "bool" },
     ],
@@ -286,7 +286,7 @@ export const filePlaceSaleAbi = [
     type: "function",
     inputs: [
       { name: "creator", internalType: "address", type: "address" },
-      { name: "uuid", internalType: "string", type: "string" },
+      { name: "cid", internalType: "string", type: "string" },
     ],
     name: "getContent",
     outputs: [
@@ -309,7 +309,7 @@ export const filePlaceSaleAbi = [
   {
     type: "function",
     inputs: [
-      { name: "uuid", internalType: "string", type: "string" },
+      { name: "cid", internalType: "string", type: "string" },
       { name: "price", internalType: "uint256", type: "uint256" },
     ],
     name: "setContent",
@@ -326,7 +326,7 @@ export const filePlaceSaleAbi = [
         type: "address",
         indexed: true,
       },
-      { name: "uuid", internalType: "string", type: "string", indexed: false },
+      { name: "cid", internalType: "string", type: "string", indexed: false },
       {
         name: "price",
         internalType: "uint256",
@@ -352,7 +352,7 @@ export const filePlaceSaleAbi = [
         type: "address",
         indexed: true,
       },
-      { name: "uuid", internalType: "string", type: "string", indexed: false },
+      { name: "cid", internalType: "string", type: "string", indexed: false },
       {
         name: "amount",
         internalType: "uint256",
@@ -365,14 +365,14 @@ export const filePlaceSaleAbi = [
 ] as const;
 
 /**
- * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0x035dD367FD1F11260AD161Af6390Cb144CF113a6)
+ * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0xC73C6a51eA83E63c2bB589813930c54ccFB68B91)
  */
 export const filePlaceSaleAddress = {
-  314159: "0x035dD367FD1F11260AD161Af6390Cb144CF113a6",
+  314159: "0xC73C6a51eA83E63c2bB589813930c54ccFB68B91",
 } as const;
 
 /**
- * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0x035dD367FD1F11260AD161Af6390Cb144CF113a6)
+ * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0xC73C6a51eA83E63c2bB589813930c54ccFB68B91)
  */
 export const filePlaceSaleConfig = {
   address: filePlaceSaleAddress,
@@ -603,7 +603,7 @@ export const useSimulateFilePlaceIMulticall3TryBlockAndAggregate =
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link filePlaceSaleAbi}__
  *
- * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0x035dD367FD1F11260AD161Af6390Cb144CF113a6)
+ * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0xC73C6a51eA83E63c2bB589813930c54ccFB68B91)
  */
 export const useReadFilePlaceSale = /*#__PURE__*/ createUseReadContract({
   abi: filePlaceSaleAbi,
@@ -613,7 +613,7 @@ export const useReadFilePlaceSale = /*#__PURE__*/ createUseReadContract({
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link filePlaceSaleAbi}__ and `functionName` set to `"contents"`
  *
- * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0x035dD367FD1F11260AD161Af6390Cb144CF113a6)
+ * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0xC73C6a51eA83E63c2bB589813930c54ccFB68B91)
  */
 export const useReadFilePlaceSaleContents = /*#__PURE__*/ createUseReadContract(
   {
@@ -626,7 +626,7 @@ export const useReadFilePlaceSaleContents = /*#__PURE__*/ createUseReadContract(
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link filePlaceSaleAbi}__ and `functionName` set to `"getContent"`
  *
- * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0x035dD367FD1F11260AD161Af6390Cb144CF113a6)
+ * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0xC73C6a51eA83E63c2bB589813930c54ccFB68B91)
  */
 export const useReadFilePlaceSaleGetContent =
   /*#__PURE__*/ createUseReadContract({
@@ -638,7 +638,7 @@ export const useReadFilePlaceSaleGetContent =
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link filePlaceSaleAbi}__ and `functionName` set to `"purchases"`
  *
- * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0x035dD367FD1F11260AD161Af6390Cb144CF113a6)
+ * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0xC73C6a51eA83E63c2bB589813930c54ccFB68B91)
  */
 export const useReadFilePlaceSalePurchases =
   /*#__PURE__*/ createUseReadContract({
@@ -650,7 +650,7 @@ export const useReadFilePlaceSalePurchases =
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link filePlaceSaleAbi}__
  *
- * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0x035dD367FD1F11260AD161Af6390Cb144CF113a6)
+ * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0xC73C6a51eA83E63c2bB589813930c54ccFB68B91)
  */
 export const useWriteFilePlaceSale = /*#__PURE__*/ createUseWriteContract({
   abi: filePlaceSaleAbi,
@@ -660,7 +660,7 @@ export const useWriteFilePlaceSale = /*#__PURE__*/ createUseWriteContract({
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link filePlaceSaleAbi}__ and `functionName` set to `"buy"`
  *
- * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0x035dD367FD1F11260AD161Af6390Cb144CF113a6)
+ * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0xC73C6a51eA83E63c2bB589813930c54ccFB68B91)
  */
 export const useWriteFilePlaceSaleBuy = /*#__PURE__*/ createUseWriteContract({
   abi: filePlaceSaleAbi,
@@ -671,7 +671,7 @@ export const useWriteFilePlaceSaleBuy = /*#__PURE__*/ createUseWriteContract({
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link filePlaceSaleAbi}__ and `functionName` set to `"setContent"`
  *
- * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0x035dD367FD1F11260AD161Af6390Cb144CF113a6)
+ * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0xC73C6a51eA83E63c2bB589813930c54ccFB68B91)
  */
 export const useWriteFilePlaceSaleSetContent =
   /*#__PURE__*/ createUseWriteContract({
@@ -683,7 +683,7 @@ export const useWriteFilePlaceSaleSetContent =
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link filePlaceSaleAbi}__
  *
- * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0x035dD367FD1F11260AD161Af6390Cb144CF113a6)
+ * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0xC73C6a51eA83E63c2bB589813930c54ccFB68B91)
  */
 export const useSimulateFilePlaceSale = /*#__PURE__*/ createUseSimulateContract(
   { abi: filePlaceSaleAbi, address: filePlaceSaleAddress }
@@ -692,7 +692,7 @@ export const useSimulateFilePlaceSale = /*#__PURE__*/ createUseSimulateContract(
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link filePlaceSaleAbi}__ and `functionName` set to `"buy"`
  *
- * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0x035dD367FD1F11260AD161Af6390Cb144CF113a6)
+ * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0xC73C6a51eA83E63c2bB589813930c54ccFB68B91)
  */
 export const useSimulateFilePlaceSaleBuy =
   /*#__PURE__*/ createUseSimulateContract({
@@ -704,7 +704,7 @@ export const useSimulateFilePlaceSaleBuy =
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link filePlaceSaleAbi}__ and `functionName` set to `"setContent"`
  *
- * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0x035dD367FD1F11260AD161Af6390Cb144CF113a6)
+ * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0xC73C6a51eA83E63c2bB589813930c54ccFB68B91)
  */
 export const useSimulateFilePlaceSaleSetContent =
   /*#__PURE__*/ createUseSimulateContract({
@@ -716,7 +716,7 @@ export const useSimulateFilePlaceSaleSetContent =
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link filePlaceSaleAbi}__
  *
- * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0x035dD367FD1F11260AD161Af6390Cb144CF113a6)
+ * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0xC73C6a51eA83E63c2bB589813930c54ccFB68B91)
  */
 export const useWatchFilePlaceSaleEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
@@ -727,7 +727,7 @@ export const useWatchFilePlaceSaleEvent =
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link filePlaceSaleAbi}__ and `eventName` set to `"ContentCreated"`
  *
- * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0x035dD367FD1F11260AD161Af6390Cb144CF113a6)
+ * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0xC73C6a51eA83E63c2bB589813930c54ccFB68B91)
  */
 export const useWatchFilePlaceSaleContentCreatedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
@@ -739,7 +739,7 @@ export const useWatchFilePlaceSaleContentCreatedEvent =
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link filePlaceSaleAbi}__ and `eventName` set to `"Sold"`
  *
- * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0x035dD367FD1F11260AD161Af6390Cb144CF113a6)
+ * [__View Contract on Filecoin Calibration Filscan__](https://calibration.filscan.io/address/0xC73C6a51eA83E63c2bB589813930c54ccFB68B91)
  */
 export const useWatchFilePlaceSaleSoldEvent =
   /*#__PURE__*/ createUseWatchContractEvent({

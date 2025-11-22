@@ -1,20 +1,18 @@
 import { useDownloadPiece } from "./useDownloadPiece";
 import { useOpenPieceDataInNewTab } from "./useOpenPieceDataInNewTab";
+import { useDeletePiece } from "./useDeletePiece";
 import { type UserFile } from "./useUserFiles";
 
-/**
- * Unified hook for all file operations (download, view, etc.)
- * Consolidates multiple mutation hooks into one
- */
-export const useFileOperations = (file: UserFile) => {
+export const useFileOperations = (file: UserFile, dataset?: any) => {
   const filename = file.title || `${file.pieceCid}.bin`;
-  
+
   const { downloadMutation } = useDownloadPiece(file.pieceCid, filename);
   const { openPieceDataInNewTabMutation } = useOpenPieceDataInNewTab(
     file.pieceCid,
     file.isCDN || false,
-    file.serviceURL || ""
+    file.serviceURL || "",
   );
+  const deletePieceMutation = useDeletePiece();
 
   return {
     download: {
@@ -30,6 +28,11 @@ export const useFileOperations = (file: UserFile) => {
       error: openPieceDataInNewTabMutation.error,
       isAvailable: !!file.serviceURL,
     },
+    delete: {
+      mutation: deletePieceMutation,
+      dataset,
+      pieceId: file.pieceId,
+      isAvailable: !!(file.pieceId && dataset),
+    },
   };
 };
-

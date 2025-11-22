@@ -4,17 +4,9 @@ import { fileTypeFromBuffer } from "file-type";
 import { useEthersSigner } from "./useEthers";
 import { useAccount } from "wagmi";
 
-/** Detects MIME type from binary data */
 const identifyFileType = async (uint8Array: Uint8Array) =>
   await fileTypeFromBuffer(uint8Array);
 
-/**
- * Hook for downloading files from Filecoin using piece CID (CommP).
- * Retrieves file, detects MIME type, and triggers browser download with original filename.
- * @param pieceCid - Piece CID identifying the file on Filecoin
- * @param filename - Original filename for download
- * @returns Mutation object for download operation
- */
 export const useDownloadPiece = (pieceCid: string, filename: string) => {
   const { chainId } = useAccount();
   const signer = useEthersSigner({ chainId });

@@ -4,15 +4,59 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { FormField } from "@/components/ui/form-field";
 import { FileUpload } from "@/components/ui/file-upload";
 import { CATEGORIES } from "@/constants/categories";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface UploadFormFieldsProps {
   form: any;
   isUploading: boolean;
+  datasets: any[];
 }
 
-export function UploadFormFields({ form, isUploading }: UploadFormFieldsProps) {
+export function UploadFormFields({
+  form,
+  isUploading,
+  datasets,
+}: UploadFormFieldsProps) {
   return (
     <>
+      {/* Dataset Selection */}
+      {datasets.length > 0 && (
+        <form.Field name="datasetId">
+          {(field: any) => (
+            <FormField
+              label="Dataset"
+              description="Choose an existing dataset or leave empty to create a new one"
+            >
+              <Select
+                value={field.state.value}
+                onValueChange={(value) => field.handleChange(value)}
+                disabled={isUploading}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Create New Dataset" />
+                </SelectTrigger>
+                <SelectContent>
+                  {datasets.map((dataset) => (
+                    <SelectItem
+                      key={dataset.dataSetId.toString()}
+                      value={dataset.dataSetId.toString()}
+                    >
+                      Dataset #{dataset.dataSetId}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormField>
+          )}
+        </form.Field>
+      )}
+
       {/* File Upload */}
       <form.Field name="file">
         {(field: any) => (
@@ -74,23 +118,24 @@ export function UploadFormFields({ form, isUploading }: UploadFormFieldsProps) {
       <form.Field name="category">
         {(field: any) => (
           <FormField label="Category">
-            <select
+            <Select
               value={field.state.value}
-              onChange={(e) =>
-                field.handleChange(
-                  e.target.value as (typeof CATEGORIES)[number],
-                )
+              onValueChange={(value) =>
+                field.handleChange(value as (typeof CATEGORIES)[number])
               }
-              onBlur={field.handleBlur}
               disabled={isUploading}
-              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {CATEGORIES.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {CATEGORIES.map((cat) => (
+                  <SelectItem key={cat} value={cat}>
+                    {cat}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </FormField>
         )}
       </form.Field>

@@ -1,12 +1,5 @@
 import { useMemo } from "react";
-import {
-  FileText,
-  Video,
-  Code,
-  Database,
-  Palette,
-  File,
-} from "lucide-react";
+import { FileText, Video, Code, Database, Palette, File } from "lucide-react";
 import { type Category } from "@/constants/categories";
 
 interface CategoryMetadata {
@@ -54,13 +47,9 @@ const defaultMetadata: CategoryMetadata = {
   bgColor: "bg-gray-500/10",
 };
 
-/**
- * Hook to get category metadata (icon, colors) in one call
- */
 export const useCategory = (category?: string) => {
   return useMemo(() => {
     if (!category) return defaultMetadata;
     return categoryMetadataMap[category as Category] || defaultMetadata;
   }, [category]);
 };
-

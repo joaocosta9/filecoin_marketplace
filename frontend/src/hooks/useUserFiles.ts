@@ -1,14 +1,16 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { useAccount } from "wagmi";
-import { useSynapse } from "@/hooks/useSynapse";
-import { PDPServer, WarmStorageService } from "@filoz/synapse-sdk";
+import { useDataSets } from "@filoz/synapse-react";
 
 export type UserFile = {
   pdpVerifierDataSetId: string;
   providerId: string;
   pieceCid: string;
+  pieceId?: bigint;
+  dataSetId?: bigint;
+  clientDataSetId?: bigint;
   title?: string;
   description?: string;
   category?: string;
@@ -17,101 +19,45 @@ export type UserFile = {
   isCDN?: boolean;
 };
 
-export const useUserFiles = () => {
-  const { address, chainId, isConnected } = useAccount();
-  const { data: synapse } = useSynapse(false);
+export const useUserFiles = (datasetId?: string) => {
+  const { address } = useAccount();
+  const { data: datasets, isLoading, error } = useDataSets({ address });
 
-  return useQuery({
-    enabled: !!isConnected && !!address && !!synapse,
-    queryKey: ["user-files", address, chainId],
-    queryFn: async () => {
-      if (!synapse) throw new Error("Synapse not initialized");
-      if (!address) throw new Error("Address not found");
+  const files = useMemo(() => {
+    if (!datasets) return undefined;
 
-      const warmStorage = await WarmStorageService.create(
-        synapse.getProvider(),
-        synapse.getWarmStorageAddress(),
-      );
+    // Filter by dataset if specified
+    const filteredDatasets = datasetId
+      ? datasets.filter((d) => d.dataSetId.toString() === datasetId)
+      : datasets;
 
-      const datasets = await synapse.storage.findDataSets();
+    // Transform datasets with pieces into flat file list
+    const allFiles: UserFile[] = filteredDatasets.flatMap((dataset) => {
+      return dataset.pieces.map((piece) => ({
+        pdpVerifierDataSetId:
+          (dataset as any).pdpVerifierDataSetId?.toString() ||
+          dataset.dataSetId.toString(),
+        providerId: (dataset as any).providerId?.toString() || "",
+        pieceCid: piece.cid.toString(),
+        pieceId: BigInt(piece.id),
+        dataSetId: dataset.dataSetId,
+        clientDataSetId: (dataset as any).clientDataSetId || dataset.dataSetId,
+        title: piece.metadata?.title,
+        description: piece.metadata?.description,
+        category: piece.metadata?.category,
+        price: piece.metadata?.price,
+        serviceURL: dataset.pdp.serviceURL,
+        isCDN: dataset.cdn,
+      }));
+    });
 
-      const allFiles: UserFile[] = [];
+    // Reverse to show newest first
+    return allFiles.reverse();
+  }, [datasets, datasetId]);
 
-      await Promise.all(
-        datasets.map(async (dataset) => {
-          try {
-            const provider = await synapse.getProviderInfo(dataset.providerId);
-            const serviceURL = provider.products.PDP?.data.serviceURL;
-
-            if (!serviceURL) {
-              return;
-            }
-
-            const pdpServer = new PDPServer(null, serviceURL);
-            const data = await pdpServer.getDataSet(
-              dataset.pdpVerifierDataSetId,
-            );
-
-            for (const piece of data.pieces) {
-              try {
-                const pieceCid = piece.pieceCid.toV1().toString();
-                const pieceId = (piece as unknown as { pieceId?: number })
-                  ?.pieceId;
-
-                if (!pieceId) {
-                  // Fallback if pieceId doesn't exist
-                  allFiles.push({
-                    pdpVerifierDataSetId:
-                      dataset.pdpVerifierDataSetId.toString(),
-                    providerId: dataset.providerId.toString(),
-                    pieceCid,
-                    serviceURL,
-                    isCDN: false,
-                  });
-                  continue;
-                }
-
-                const metadata = await warmStorage.getPieceMetadata(
-                  dataset.pdpVerifierDataSetId,
-                  pieceId,
-                );
-
-                allFiles.push({
-                  pdpVerifierDataSetId: dataset.pdpVerifierDataSetId.toString(),
-                  providerId: dataset.providerId.toString(),
-                  pieceCid,
-                  title: metadata?.title,
-                  description: metadata?.description,
-                  category: metadata?.category,
-                  price: metadata?.price,
-                  serviceURL,
-                  isCDN: false,
-                });
-              } catch (error) {
-                console.warn(
-                  `Failed to fetch metadata for piece ${piece.pieceCid.toV1().toString()}:`,
-                  error,
-                );
-                // Still add the file without metadata
-                allFiles.push({
-                  pdpVerifierDataSetId: dataset.pdpVerifierDataSetId.toString(),
-                  providerId: dataset.providerId.toString(),
-                  pieceCid: piece.pieceCid.toV1().toString(),
-                  serviceURL,
-                  isCDN: false,
-                });
-              }
-            }
-          } catch (error) {
-            console.warn(
-              `Failed to fetch details for dataset ${dataset.pdpVerifierDataSetId}:`,
-              error,
-            );
-          }
-        }),
-      );
-
-      return allFiles.reverse();
-    },
-  });
+  return {
+    data: files,
+    isLoading,
+    error,
+  };
 };

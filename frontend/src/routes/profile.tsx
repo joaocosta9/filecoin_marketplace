@@ -12,8 +12,9 @@ export const Route = createFileRoute("/profile")({
 });
 
 function ProfilePage() {
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, chainId } = useAccount();
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+
   const { data: files, isLoading } = useUserFiles();
 
   if (!isConnected) {

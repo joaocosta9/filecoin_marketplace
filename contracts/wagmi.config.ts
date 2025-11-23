@@ -6,12 +6,10 @@ export default defineConfig({
   plugins: [
     foundry({
       project: "./",
-      // exclude: ["MockERC20.sol", "Sale.d.sol", "IERC20.sol"],
-      // legacy name, for compatibility reasons
       namePrefix: "FilePlace",
       deployments: {
         Sale: {
-          314159: "0x03996d8d526F82BdE5dD223499946aaf817AE30B",
+          314159: "0x44aFd451fa623e06d869f48Ea612804678225Caa",
         },
       },
     }),

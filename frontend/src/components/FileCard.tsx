@@ -76,8 +76,8 @@ export function FileCard({
           </div>
           {hasPrice && (
             <div className="flex items-center space-x-1 px-3 py-1.5 bg-black/40 backdrop-blur-sm rounded-lg border border-white/10">
-              <DollarSign size={16} className="text-yellow-300" />
               <span className="text-sm font-bold text-white">{file.price}</span>
+              <span className="text-yellow-300 text-sm">tFIL</span>
             </div>
           )}
         </div>
@@ -128,7 +128,7 @@ export function FileCard({
                 }
                 if (!file.contentId) {
                   alert(
-                    "Content ID not available - file may not support purchases",
+                    "Content ID not available - file may not support purchases"
                   );
                   return;
                 }
@@ -144,7 +144,7 @@ export function FileCard({
               title={
                 buyMutation.isPending
                   ? "Processing purchase..."
-                  : `Buy for ${file.price} FIL`
+                  : `Buy for ${file.price} tFIL`
               }
             >
               {buyMutation.isPending ? (

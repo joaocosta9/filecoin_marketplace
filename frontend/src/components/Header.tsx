@@ -11,10 +11,9 @@ export default function Header() {
     <header className="p-4 flex items-center bg-gray-800 backdrop-blur-md border-b border-gray-700/50 text-white shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-            <User size={18} className="text-white" />
-          </div>
-          <span className="font-bold text-lg">Filecoin Marketplace</span>
+          {/* <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center"> */}
+          <img src="/comp-logo.png" alt="FilePlace" className="h-12" />{" "}
+          {/* </div> */}
         </Link>
         <div className="flex items-center gap-3">
           <Button asChild variant="outline">

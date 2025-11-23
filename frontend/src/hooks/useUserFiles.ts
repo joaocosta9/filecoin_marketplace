@@ -31,12 +31,10 @@ export const useUserFiles = (datasetId?: string, targetAddress?: string) => {
   const files = useMemo(() => {
     if (!datasets) return undefined;
 
-    // Filter by dataset if specified
     const filteredDatasets = datasetId
       ? datasets.filter((d) => d.dataSetId.toString() === datasetId)
       : datasets;
 
-    // Transform datasets with pieces into flat file list
     const allFiles: UserFile[] = filteredDatasets.flatMap((dataset) => {
       return dataset.pieces.map((piece) => ({
         pdpVerifierDataSetId:
@@ -58,7 +56,6 @@ export const useUserFiles = (datasetId?: string, targetAddress?: string) => {
       }));
     });
 
-    // Reverse to show newest first
     return allFiles.reverse();
   }, [datasets, datasetId]);
 

@@ -3,6 +3,7 @@ export { useCheckPurchase } from "./useCheckPurchase";
 export { useCategory } from "./useCategory";
 export { useMarketplaceSellers } from "./useMarketplaceSellers";
 export { useMarketplaceFiles } from "./useMarketplaceFiles";
+export { useMultipleUserDataSets } from "./useMultipleUserDataSets";
 export { useDeletePiece } from "./useDeletePiece";
 export { useDownloadPiece } from "./useDownloadPiece";
 export { useEthersSigner, clientToSigner, clientToProvider } from "./useEthers";

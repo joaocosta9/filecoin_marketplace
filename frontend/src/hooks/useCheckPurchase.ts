@@ -14,7 +14,7 @@ export const useCheckPurchase = (
         : undefined,
     query: {
       enabled: !!(buyerAddress && creatorAddress && contentId),
-      refetchInterval: 5000, // Refetch every 5 seconds to catch new purchases
+      refetchInterval: 5000,
     },
   });
 

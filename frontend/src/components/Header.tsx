@@ -20,10 +20,7 @@ export default function Header() {
         </Link>
         <div className="flex items-center gap-3">
           <Button asChild variant="outline">
-            <Link
-              to="/marketplace"
-              className="flex items-center gap-2 text-black"
-            >
+            <Link to="/" className="flex items-center gap-2 text-black">
               <Store size={16} />
               Marketplace
             </Link>

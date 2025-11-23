@@ -10,7 +10,6 @@ export { useDownloadPiece } from "./useDownloadPiece";
 export { useEthersSigner, clientToSigner, clientToProvider } from "./useEthers";
 export { useFileOperations } from "./useFileOperations";
 export { useFileUpload } from "./useFileUpload";
-export { useFund } from "./useFund";
 export { useOpenPieceDataInNewTab } from "./useOpenPieceDataInNewTab";
 export { useSynapse } from "./useSynapse";
 export { useUserFiles } from "./useUserFiles";

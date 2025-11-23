@@ -9,10 +9,9 @@ export const Route = createFileRoute("/marketplace")({
   component: MarketplacePage,
 });
 
-// List of seller addresses to browse
 const SELLERS = [
   "0x395b67a9332f29e6551b461c9812086c94321c9c",
-  // Add more seller addresses here as needed
+  "0x8e0325f37cd0431deb0BC1Cf6BBB4F65dBbF628C",
 ];
 
 function MarketplacePage() {

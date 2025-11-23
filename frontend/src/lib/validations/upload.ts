@@ -29,7 +29,6 @@ export const uploadFormSchema = z.object({
       },
       { message: "Price must be a valid positive number" },
     ),
-  isPrivate: z.boolean().default(false),
   datasetId: z.string().optional(),
 });
 

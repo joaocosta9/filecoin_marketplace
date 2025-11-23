@@ -4,7 +4,6 @@ import { useAccount } from "wagmi";
 import { useSynapse } from "@/hooks/useSynapse";
 import { useEthersSigner } from "@/hooks/useEthers";
 import type { Category } from "@/constants/categories";
-import { saveProduct } from "@/api/user";
 import { useWriteFilePlaceSaleSetContent } from "../../wagmi.generated";
 import { parseUnits } from "viem";
 import { Lit } from "@/lib/lit";
@@ -25,7 +24,6 @@ export type FileUploadMetadata = {
   description: string;
   category: Category;
   price?: number;
-  isPrivate?: boolean;
 };
 
 export const useFileUpload = () => {
@@ -58,20 +56,29 @@ export const useFileUpload = () => {
       setUploadedInfo(null);
       setStatus("🔄 Initializing file upload to Filecoin...");
 
+      // Generate a UUID that will be used for access control
+      // This UUID will be stored in metadata and used in the Sale contract
+      const contentId = crypto.randomUUID();
       let fileToUpload = file;
 
       if (metadata.price && metadata.price > 0) {
         setStatus("🔐 Encrypting file with Lit Protocol...");
         setProgress(10);
 
-        const lit = new Lit(CHAIN, address, MARKETPLACE_CONTRACT_ADDRESS);
+        // Encrypt with the UUID - this same UUID will be used in the contract
+        const lit = new Lit(
+          CHAIN,
+          address,
+          contentId,
+          MARKETPLACE_CONTRACT_ADDRESS,
+        );
         await lit.connect();
         const encryptedPayload = await lit.encryptFile(file);
-        console.log("encryptedPayload", encryptedPayload);
+
         if (!encryptedPayload) {
           throw new Error("Failed to encrypt file");
         }
-        console.log("2", encryptedPayload);
+
         const encryptedBlob = new Blob([JSON.stringify(encryptedPayload)], {
           type: "application/json",
         });
@@ -93,17 +100,15 @@ export const useFileUpload = () => {
       const storageService = await synapse.storage.createContext({
         ...(datasetId && { dataSetId: datasetId }),
         callbacks: {
-          onDataSetResolved: (info) => {
-            console.log("Dataset resolved:", info);
+          onDataSetResolved: () => {
             setStatus(
               datasetId
                 ? "🔗 Using selected dataset"
-                : "🔗 Existing dataset found and resolved"
+                : "🔗 Existing dataset found and resolved",
             );
             setProgress(30);
           },
-          onProviderSelected: (provider) => {
-            console.log("Storage provider selected:", provider);
+          onProviderSelected: () => {
             setStatus(`🏪 Storage provider selected`);
           },
         },
@@ -117,12 +122,12 @@ export const useFileUpload = () => {
           title: metadata.title,
           description: metadata.description,
           category: metadata.category,
-          price: metadata.price?.toString() || "",
-          isPrivate: metadata.isPrivate?.toString() || "false",
+          price: metadata.price?.toString() || "0",
+          contentId: contentId, // Store the UUID for access control
         },
         onUploadComplete: (piece) => {
           setStatus(
-            `📊 File uploaded! Signing msg to add pieces to the dataset`
+            `📊 File uploaded! Signing msg to add pieces to the dataset`,
           );
           setUploadedInfo((prev) => ({
             ...prev,
@@ -134,7 +139,7 @@ export const useFileUpload = () => {
         },
         onPieceAdded: (hash) => {
           setStatus(
-            `🔄 Waiting for transaction to be confirmed on chain (txHash: ${hash})`
+            `🔄 Waiting for transaction to be confirmed on chain (txHash: ${hash})`,
           );
           setUploadedInfo((prev) => ({
             ...prev,
@@ -157,12 +162,22 @@ export const useFileUpload = () => {
       return {
         pieceCid: pieceCid.toV1().toString(),
         price: metadata.price || 0,
+        contentId: contentId, // Return the UUID
       };
     },
-    onSuccess: async (data: { pieceCid: string; price: number }) => {
-      alert("File successfully stored on Filecoin!");
-      setStatus("🎉 File successfully stored on Filecoin!");
+    onSuccess: async (data: {
+      pieceCid: string;
+      price: number;
+      contentId: string;
+    }) => {
       setProgress(100);
+
+      // Register in Sale contract with the contentId (UUID), not pieceCid
+      if (data.price > 0) {
+        writeContract({
+          args: [data.contentId, parseUnits(data.price.toString(), 18)],
+        });
+      }
       queryClient.invalidateQueries({
         queryKey: ["balances", address, chainId],
       });
@@ -172,18 +187,10 @@ export const useFileUpload = () => {
       queryClient.invalidateQueries({
         queryKey: ["user-files", address, chainId],
       });
-      // Save product to backend for tracking
-      await saveProduct(data.pieceCid, address as `0x${string}`);
-
-      // Set content in Sale contract with CID and price
-      if (data.price > 0) {
-        writeContract({
-          args: [data.pieceCid, parseUnits(data.price.toString(), 18)],
-        });
-      }
+      setStatus("🎉 File successfully stored on Filecoin!");
+      alert("File successfully stored on Filecoin!");
     },
     onError: (error) => {
-      console.error("Upload failed:", error);
       setStatus(`❌ Upload failed: ${error.message || "Please try again"}`);
       setProgress(0);
     },

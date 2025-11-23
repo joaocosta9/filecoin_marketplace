@@ -51,7 +51,6 @@ export function DatasetSelector({
           });
         },
         onError: (error) => {
-          console.error("Failed to create dataset:", error);
           alert(`Failed to create dataset: ${error.message}`);
         },
       },

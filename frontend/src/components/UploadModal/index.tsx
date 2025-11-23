@@ -39,7 +39,6 @@ export default function UploadModal({
       description: "",
       category: CATEGORIES[0] as (typeof CATEGORIES)[number],
       price: "",
-      isPrivate: false,
       datasetId:
         selectedDatasetId && selectedDatasetId !== "all"
           ? selectedDatasetId
@@ -64,7 +63,6 @@ export default function UploadModal({
         description: result.data.description?.trim() || "",
         category: result.data.category as (typeof CATEGORIES)[number],
         price: result.data.price ? parseFloat(result.data.price) : undefined,
-        isPrivate: result.data.isPrivate,
       };
 
       const datasetIdNum = result.data.datasetId
@@ -82,7 +80,7 @@ export default function UploadModal({
           handleClose();
         }, 2000);
       } catch (error) {
-        console.error("Upload error:", error);
+        // Error is handled by mutation
       }
     },
   });

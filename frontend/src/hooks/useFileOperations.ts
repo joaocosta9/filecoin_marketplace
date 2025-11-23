@@ -2,18 +2,21 @@ import { useDownloadPiece } from "./useDownloadPiece";
 import { useOpenPieceDataInNewTab } from "./useOpenPieceDataInNewTab";
 import { useDeletePiece } from "./useDeletePiece";
 import { type UserFile } from "./useUserFiles";
-import { useAccount } from "wagmi";
 
-export const useFileOperations = (file: UserFile, dataset?: any) => {
-  const { address } = useAccount();
+export const useFileOperations = (
+  file: UserFile,
+  dataset?: any,
+  ownerAddress?: string,
+) => {
   const filename = file.title || `${file.pieceCid}.bin`;
-  const isEncrypted = file.encrypted === "true";
 
   const { downloadMutation } = useDownloadPiece(
     file.pieceCid,
     filename,
-    isEncrypted,
-    address,
+    ownerAddress,
+    file.contentId,
+    file.serviceURL,
+    file.isCDN,
   );
   const { openPieceDataInNewTabMutation } = useOpenPieceDataInNewTab(
     file.pieceCid,

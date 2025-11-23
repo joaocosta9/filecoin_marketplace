@@ -17,6 +17,7 @@ export type UserFile = {
   price?: string;
   serviceURL?: string;
   isCDN?: boolean;
+  contentId?: string;
   encrypted?: string;
 };
 
@@ -52,6 +53,8 @@ export const useUserFiles = (datasetId?: string, targetAddress?: string) => {
         price: piece.metadata?.price,
         serviceURL: dataset.pdp.serviceURL,
         isCDN: dataset.cdn,
+        contentId: piece.metadata?.contentId,
+        encrypted: piece.metadata?.encrypted,
       }));
     });
 

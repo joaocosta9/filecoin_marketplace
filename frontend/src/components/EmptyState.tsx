@@ -5,7 +5,7 @@ interface EmptyStateProps {
   title: string;
   description: string;
   actionLabel: string;
-  onAction: () => void;
+  onAction?: () => void;
 }
 
 export function EmptyState({
@@ -21,15 +21,16 @@ export function EmptyState({
       </div>
       <h3 className="text-xl font-semibold mb-2">{title}</h3>
       <p className="text-gray-400 mb-6">{description}</p>
-      <Button
-        size="lg"
-        className="bg-blue-600 hover:bg-blue-700"
-        onClick={onAction}
-      >
-        <Plus size={20} />
-        <span>{actionLabel}</span>
-      </Button>
+      {onAction && (
+        <Button
+          size="lg"
+          className="bg-blue-600 hover:bg-blue-700"
+          onClick={onAction}
+        >
+          <Plus size={20} />
+          <span>{actionLabel}</span>
+        </Button>
+      )}
     </div>
   );
 }
-

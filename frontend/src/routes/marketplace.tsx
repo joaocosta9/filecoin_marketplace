@@ -1,24 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { FileCard } from "@/components/FileCard";
-import { useUserFiles } from "@/hooks";
-import { Loader2, Store } from "lucide-react";
-import { useDataSets } from "@filoz/synapse-react";
+import { useMarketplaceFiles } from "@/hooks";
+import { Loader2, Store, Search } from "lucide-react";
 
 export const Route = createFileRoute("/marketplace")({
   component: MarketplacePage,
 });
 
-const SELLERS = [
-  "0x395b67a9332f29e6551b461c9812086c94321c9c",
-  "0x8e0325f37cd0431deb0BC1Cf6BBB4F65dBbF628C",
-];
-
 function MarketplacePage() {
-  const [selectedSeller, setSelectedSeller] = useState<string>(SELLERS[0]);
-
-  const { data: files, isLoading } = useUserFiles(undefined, selectedSeller);
-  const { data: datasets } = useDataSets({ address: selectedSeller as any });
+  const [searchQuery, setSearchQuery] = useState("");
+  const { files, sellers, isLoading } = useMarketplaceFiles(searchQuery);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
@@ -38,34 +30,41 @@ function MarketplacePage() {
             </div>
           </div>
 
-          <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700">
-            <label className="text-sm font-medium text-gray-300 mb-2 block">
-              Browse Seller
-            </label>
-            <select
-              value={selectedSeller}
-              onChange={(e) => setSelectedSeller(e.target.value)}
-              className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {SELLERS.map((seller) => (
-                <option key={seller} value={seller}>
-                  {seller}
-                </option>
-              ))}
-            </select>
-            <p className="text-xs text-gray-500 mt-2">
-              Viewing files from: {selectedSeller.slice(0, 6)}...
-              {selectedSeller.slice(-4)}
-            </p>
-          </div>
+          {sellers && sellers.length > 0 && (
+            <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700">
+              <label className="text-sm font-medium text-gray-300 mb-2 block">
+                Search by Seller Address
+              </label>
+              <div className="relative">
+                <Search
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={20}
+                />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Enter address to filter..."
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg pl-10 pr-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              {searchQuery && (
+                <p className="text-xs text-gray-500 mt-2">
+                  Filtering by: {searchQuery}
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         <div>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold">Available Files</h2>
-            {files && files.length > 0 && (
+            <h2 className="text-2xl font-bold">All Available Files</h2>
+            {files.length > 0 && (
               <span className="text-sm text-gray-400">
                 {files.length} {files.length === 1 ? "file" : "files"}
+                {sellers &&
+                  ` from ${sellers.length} ${sellers.length === 1 ? "seller" : "sellers"}`}
               </span>
             )}
           </div>
@@ -73,34 +72,30 @@ function MarketplacePage() {
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-20">
               <Loader2 className="animate-spin text-blue-500 mb-4" size={48} />
-              <p className="text-gray-400">Loading files...</p>
+              <p className="text-gray-400">Loading marketplace...</p>
             </div>
-          ) : files && files.length > 0 ? (
+          ) : files.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {files.map((file, index) => {
-                const dataset = datasets?.find(
-                  (d) => d.dataSetId.toString() === file.dataSetId?.toString(),
-                );
-                return (
-                  <FileCard
-                    key={file.pieceCid + index}
-                    file={file}
-                    dataset={dataset}
-                    ownerAddress={selectedSeller}
-                    showOwner={true}
-                  />
-                );
-              })}
+              {files.map((file, index) => (
+                <FileCard
+                  key={`${file.ownerAddress}-${file.pieceCid}-${index}`}
+                  file={file}
+                  dataset={file.dataset}
+                  ownerAddress={file.ownerAddress}
+                  showOwner={true}
+                />
+              ))}
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-20 bg-gray-800/30 rounded-2xl border border-gray-700/50">
               <Store size={64} className="text-gray-600 mb-4" />
               <h3 className="text-xl font-semibold text-gray-300 mb-2">
-                No Files Available
+                {searchQuery ? "No Matching Files" : "No Files Available"}
               </h3>
               <p className="text-gray-500 text-center max-w-md">
-                This seller hasn't uploaded any files yet. Check back later or
-                browse other sellers.
+                {searchQuery
+                  ? "No files found matching your search. Try a different address."
+                  : "No files are currently listed in the marketplace. Be the first to upload!"}
               </p>
             </div>
           )}

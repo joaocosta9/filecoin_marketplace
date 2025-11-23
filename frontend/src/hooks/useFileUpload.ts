@@ -9,7 +9,7 @@ import { parseUnits } from "viem";
 import { Lit } from "@/lib/lit";
 
 const MARKETPLACE_CONTRACT_ADDRESS =
-  "0x03996d8d526F82BdE5dD223499946aaf817AE30B";
+  "0x44aFd451fa623e06d869f48Ea612804678225Caa";
 const CHAIN = "filecoinCalibrationTestnet";
 
 export type UploadedInfo = {
@@ -70,7 +70,7 @@ export const useFileUpload = () => {
           CHAIN,
           address,
           contentId,
-          MARKETPLACE_CONTRACT_ADDRESS,
+          MARKETPLACE_CONTRACT_ADDRESS
         );
         await lit.connect();
         const encryptedPayload = await lit.encryptFile(file);
@@ -104,7 +104,7 @@ export const useFileUpload = () => {
             setStatus(
               datasetId
                 ? "🔗 Using selected dataset"
-                : "🔗 Existing dataset found and resolved",
+                : "🔗 Existing dataset found and resolved"
             );
             setProgress(30);
           },
@@ -127,7 +127,7 @@ export const useFileUpload = () => {
         },
         onUploadComplete: (piece) => {
           setStatus(
-            `📊 File uploaded! Signing msg to add pieces to the dataset`,
+            `📊 File uploaded! Signing msg to add pieces to the dataset`
           );
           setUploadedInfo((prev) => ({
             ...prev,
@@ -139,7 +139,7 @@ export const useFileUpload = () => {
         },
         onPieceAdded: (hash) => {
           setStatus(
-            `🔄 Waiting for transaction to be confirmed on chain (txHash: ${hash})`,
+            `🔄 Waiting for transaction to be confirmed on chain (txHash: ${hash})`
           );
           setUploadedInfo((prev) => ({
             ...prev,

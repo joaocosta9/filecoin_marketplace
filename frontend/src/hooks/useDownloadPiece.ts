@@ -5,7 +5,7 @@ import { Lit } from "@/lib/lit";
 import type { EncryptToJsonPayload } from "@lit-protocol/encryption/node_modules/@lit-protocol/types";
 
 const MARKETPLACE_CONTRACT_ADDRESS =
-  "0x03996d8d526F82BdE5dD223499946aaf817AE30B";
+  "0x44aFd451fa623e06d869f48Ea612804678225Caa";
 const CHAIN = "filecoinCalibrationTestnet";
 const DEFAULT_PROVIDER = "https://calibnet.pspsps.io";
 
@@ -15,7 +15,7 @@ export const useDownloadPiece = (
   creatorAddress?: string,
   contentId?: string,
   serviceURL?: string,
-  isCDN?: boolean,
+  isCDN?: boolean
 ) => {
   const { address } = useAccount();
 
@@ -47,7 +47,7 @@ export const useDownloadPiece = (
           CHAIN,
           creatorAddress,
           contentId,
-          MARKETPLACE_CONTRACT_ADDRESS,
+          MARKETPLACE_CONTRACT_ADDRESS
         );
         await lit.connect();
         const { decryptedFile } = await lit.decryptFile(encryptedPayload);

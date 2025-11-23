@@ -70,7 +70,7 @@ export const useFileUpload = () => {
           CHAIN,
           address,
           contentId,
-          MARKETPLACE_CONTRACT_ADDRESS
+          MARKETPLACE_CONTRACT_ADDRESS,
         );
         await lit.connect();
         const encryptedPayload = await lit.encryptFile(file);
@@ -104,7 +104,7 @@ export const useFileUpload = () => {
             setStatus(
               datasetId
                 ? "🔗 Using selected dataset"
-                : "🔗 Existing dataset found and resolved"
+                : "🔗 Existing dataset found and resolved",
             );
             setProgress(30);
           },
@@ -127,7 +127,7 @@ export const useFileUpload = () => {
         },
         onUploadComplete: (piece) => {
           setStatus(
-            `📊 File uploaded! Signing msg to add pieces to the dataset`
+            `📊 File uploaded! Signing msg to add pieces to the dataset`,
           );
           setUploadedInfo((prev) => ({
             ...prev,
@@ -139,7 +139,7 @@ export const useFileUpload = () => {
         },
         onPieceAdded: (hash) => {
           setStatus(
-            `🔄 Waiting for transaction to be confirmed on chain (txHash: ${hash})`
+            `🔄 Waiting for transaction to be confirmed on chain (txHash: ${hash})`,
           );
           setUploadedInfo((prev) => ({
             ...prev,
@@ -174,19 +174,48 @@ export const useFileUpload = () => {
 
       // Register in Sale contract with the contentId (UUID), not pieceCid
       if (data.price > 0) {
-        writeContract({
-          args: [data.contentId, parseUnits(data.price.toString(), 18)],
-        });
+        try {
+          await writeContract({
+            args: [data.contentId, parseUnits(data.price.toString(), 18)],
+          });
+        } catch (error) {
+          console.error("Failed to register in Sale contract:", error);
+        }
       }
-      queryClient.invalidateQueries({
-        queryKey: ["balances", address, chainId],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["datasets", address, chainId],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["user-files", address, chainId],
-      });
+
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["balances", address, chainId],
+          refetchType: "active",
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["datasets", address, chainId],
+          refetchType: "active",
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["user-files", address, chainId],
+          refetchType: "active",
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["synapse-warm-storage-data-sets", address],
+          refetchType: "active",
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["multiple-user-datasets"],
+          refetchType: "active",
+        }),
+
+        queryClient.invalidateQueries({
+          predicate: (query) => {
+            return (
+              query.queryKey[0] === "readContract" &&
+              JSON.stringify(query.queryKey).includes("getAllContents")
+            );
+          },
+          refetchType: "active",
+        }),
+      ]);
+
       setStatus("🎉 File successfully stored on Filecoin!");
       alert("File successfully stored on Filecoin!");
     },

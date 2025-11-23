@@ -32,6 +32,19 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ["react", "react-dom"],
+          wagmi: ["wagmi", "viem"],
+          lit: ["@lit-protocol/lit-node-client"],
+          synapse: ["@filoz/synapse-sdk", "@filoz/synapse-react"],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000,
+  },
   server: {
     allowedHosts: ["localhost", "127.0.0.1", "a739dc83fb5e.ngrok-free.app"],
   },

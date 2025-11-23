@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
 import { useAccount } from "wagmi";
-import { Plus, ShoppingBag } from "lucide-react";
+import { Plus } from "lucide-react";
 import UploadModal from "@/components/UploadModal";
 import { useUserFiles, usePurchasedItems, useMarketplaceFiles } from "@/hooks";
 import { FileCard } from "@/components/FileCard";
@@ -50,7 +50,7 @@ function ProfilePage() {
   }
 
   const { data: files, isLoading } = useUserFiles(
-    selectedDatasetId === "all" ? undefined : selectedDatasetId,
+    selectedDatasetId === "all" ? undefined : selectedDatasetId
   );
 
   const {
@@ -69,7 +69,7 @@ function ProfilePage() {
     return purchasedItems
       .map((item) => {
         const file = marketplaceFiles.find(
-          (f) => f.contentId === item.contentId,
+          (f) => f.contentId === item.contentId
         );
         return file;
       })
@@ -87,7 +87,7 @@ function ProfilePage() {
         return;
       }
       const confirmCreate = confirm(
-        "You need to create a dataset before uploading files. Create one now?",
+        "You need to create a dataset before uploading files. Create one now?"
       );
       if (confirmCreate) {
         createDataSet({ provider: providers[0], cdn: false });
@@ -154,7 +154,7 @@ function ProfilePage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {files.map((file, index) => {
                 const dataset = datasets?.find(
-                  (d) => d.dataSetId.toString() === file.dataSetId?.toString(),
+                  (d) => d.dataSetId.toString() === file.dataSetId?.toString()
                 );
                 return (
                   <FileCard
@@ -186,9 +186,6 @@ function ProfilePage() {
         {/* Purchased Items Section */}
         <div className="mt-12">
           <div className="flex items-center gap-3 mb-6">
-            <div className="p-3 bg-purple-600/20 rounded-xl border border-purple-500/30">
-              <ShoppingBag size={24} className="text-purple-400" />
-            </div>
             <h2 className="text-2xl font-bold">
               Purchased Items{" "}
               {purchasedItems && (

@@ -17,9 +17,6 @@ function MarketplacePage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-6">
-            <div className="p-3 bg-blue-600/20 rounded-xl border border-blue-500/30">
-              <Store size={32} className="text-blue-400" />
-            </div>
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
                 Marketplace

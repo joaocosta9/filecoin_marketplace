@@ -1,6 +1,5 @@
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import { FormField } from "@/components/ui/form-field";
 import { FileUpload } from "@/components/ui/file-upload";
 import { CATEGORIES } from "@/constants/categories";
@@ -141,53 +140,23 @@ export function UploadFormFields({
       </form.Field>
 
       {/* Price */}
-      <form.Subscribe selector={(state: any) => state.values.isPrivate}>
-        {(isPrivate: any) => (
-          <form.Field name="price">
-            {(field: any) => (
-              <FormField label="Price (FIL)" description="Optional">
-                <Input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={field.state.value || ""}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  onBlur={field.handleBlur}
-                  disabled={isUploading || isPrivate}
-                  placeholder="0.00"
-                  aria-invalid={field.state.meta.errors.length > 0}
-                />
-              </FormField>
-            )}
-          </form.Field>
-        )}
-      </form.Subscribe>
-
-      {/* Private Toggle */}
-      <form.Field name="isPrivate">
+      <form.Field name="price">
         {(field: any) => (
-          <FormField>
-            <div className="flex items-center space-x-3">
-              <Checkbox
-                id="private"
-                checked={field.state.value}
-                onChange={(e) => {
-                  field.handleChange(e.target.checked);
-                  if (e.target.checked) {
-                    form.setFieldValue("price", "");
-                  }
-                }}
-                onBlur={field.handleBlur}
-                disabled={isUploading}
-                error={field.state.meta.errors.length > 0}
-              />
-              <label
-                htmlFor="private"
-                className="text-sm font-medium leading-none cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                Keep private (only visible to you)
-              </label>
-            </div>
+          <FormField
+            label="Price (FIL)"
+            description="Set to 0 or leave empty for free files. Paid files will be encrypted."
+          >
+            <Input
+              type="number"
+              step="0.01"
+              min="0"
+              value={field.state.value || ""}
+              onChange={(e) => field.handleChange(e.target.value)}
+              onBlur={field.handleBlur}
+              disabled={isUploading}
+              placeholder="0.00"
+              aria-invalid={field.state.meta.errors.length > 0}
+            />
           </FormField>
         )}
       </form.Field>

@@ -5,7 +5,6 @@ import {
 } from "@lit-protocol/auth-helpers";
 import { LIT_ABILITY } from "@lit-protocol/constants";
 import * as LitJsSdk from "@lit-protocol/lit-node-client";
-import type { AccsEVMParams } from "@lit-protocol/types";
 import type { EncryptToJsonPayload } from "@lit-protocol/encryption/node_modules/@lit-protocol/types";
 import { encryptToJson, decryptFromJson } from "@lit-protocol/encryption";
 import { ethers } from "ethers";
@@ -17,27 +16,46 @@ export class Lit {
   litNodeClient: LitJsSdk.LitNodeClient;
   chain: SupportedChain;
   creatorAddress: string;
+  cid: string;
 
   constructor(
     chain: SupportedChain,
     creatorAddress: string,
-    contractAddress?: string
+    cid: string,
+    contractAddress?: string,
   ) {
     this.chain = chain;
     this.litNodeClient = new LitJsSdk.LitNodeClient({
       litNetwork: "datil-dev" as any,
     });
     this.creatorAddress = creatorAddress;
+    this.cid = cid;
     this.contractAddress = contractAddress ?? "";
   }
 
-  private accessControlConditions(): AccsEVMParams[] {
+  private accessControlConditions(): any[] {
     return [
+      // Condition 1: User is the creator (owner)
       {
+        conditionType: "evmBasic",
+        contractAddress: "",
+        standardContractType: "",
+        chain: this.chain,
+        method: "",
+        parameters: [":userAddress"],
+        returnValueTest: {
+          comparator: "=",
+          value: this.creatorAddress,
+        },
+      },
+      { operator: "or" },
+      // Condition 2: User has purchased the content
+      {
+        conditionType: "evmContract",
         contractAddress: this.contractAddress,
         chain: this.chain,
         functionName: "purchases",
-        functionParams: [":userAddress", this.creatorAddress, ":cid"],
+        functionParams: [":userAddress", this.creatorAddress, this.cid],
         functionAbi: {
           name: "purchases",
           stateMutability: "view",
@@ -82,7 +100,7 @@ export class Lit {
     await this.litNodeClient.connect();
 
     const encryptedString = await encryptToJson({
-      evmContractConditions: this.accessControlConditions(),
+      unifiedAccessControlConditions: this.accessControlConditions(),
       file: file,
       chain: this.chain,
       litNodeClient: this.litNodeClient,
@@ -92,7 +110,7 @@ export class Lit {
   }
 
   async decryptFile(
-    payload: EncryptToJsonPayload
+    payload: EncryptToJsonPayload,
   ): Promise<{ decryptedFile: string | Uint8Array }> {
     await this.litNodeClient.disconnect();
     await this.litNodeClient.connect();

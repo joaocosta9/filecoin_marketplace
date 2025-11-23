@@ -1,79 +1,104 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useAccount } from "wagmi";
-import { ArrowRight, Store, Shield, Zap, Globe } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { FileCard } from "@/components/FileCard";
+import { useMarketplaceFiles } from "@/hooks";
+import { Loader2, Store, Search } from "lucide-react";
 
 export const Route = createFileRoute("/")({
-  component: App,
+  component: MarketplacePage,
 });
 
-function App() {
-  const { isConnected } = useAccount();
+function MarketplacePage() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const { files, sellers, isLoading } = useMarketplaceFiles(searchQuery);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
-      {/* Hero Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 mb-6 shadow-2xl shadow-blue-500/25">
-            <Store className="text-white" size={40} />
-          </div>
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
-            Filecoin Marketplace
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-2xl mx-auto">
-            Decentralized file storage and marketplace built on Filecoin
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            {isConnected ? (
-              <Button asChild size="lg" className="text-lg px-8 py-6">
-                <Link to="/profile" className="flex items-center gap-2">
-                  Go to My Marketplace
-                  <ArrowRight size={20} />
-                </Link>
-              </Button>
-            ) : (
-              <p className="text-gray-400">
-                Connect your wallet to get started
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-3 bg-blue-600/20 rounded-xl border border-blue-500/30">
+              <Store size={32} className="text-blue-400" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                Marketplace
+              </h1>
+              <p className="text-gray-400 mt-1">
+                Browse and purchase files from creators
               </p>
-            )}
+            </div>
           </div>
+
+          {sellers && sellers.length > 0 && (
+            <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700">
+              <label className="text-sm font-medium text-gray-300 mb-2 block">
+                Search by Seller Address
+              </label>
+              <div className="relative">
+                <Search
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={20}
+                />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Enter address to filter..."
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg pl-10 pr-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              {searchQuery && (
+                <p className="text-xs text-gray-500 mt-2">
+                  Filtering by: {searchQuery}
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Features Grid */}
-        <div className="grid md:grid-cols-3 gap-6 mt-20">
-          <div className="p-8 bg-gray-800/30 backdrop-blur-sm rounded-2xl border border-gray-700/50 hover:border-blue-500/50 transition-all hover:shadow-xl hover:shadow-blue-500/10">
-            <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center mb-4">
-              <Shield className="text-blue-400" size={24} />
-            </div>
-            <h3 className="text-xl font-bold mb-3">Secure Storage</h3>
-            <p className="text-gray-400">
-              Your files are stored on the decentralized Filecoin network with
-              cryptographic guarantees
-            </p>
+        <div>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold">All Available Files</h2>
+            {files.length > 0 && (
+              <span className="text-sm text-gray-400">
+                {files.length} {files.length === 1 ? "file" : "files"}
+                {sellers &&
+                  ` from ${sellers.length} ${sellers.length === 1 ? "seller" : "sellers"}`}
+              </span>
+            )}
           </div>
 
-          <div className="p-8 bg-gray-800/30 backdrop-blur-sm rounded-2xl border border-gray-700/50 hover:border-purple-500/50 transition-all hover:shadow-xl hover:shadow-purple-500/10">
-            <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center mb-4">
-              <Zap className="text-purple-400" size={24} />
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-20">
+              <Loader2 className="animate-spin text-blue-500 mb-4" size={48} />
+              <p className="text-gray-400">Loading marketplace...</p>
             </div>
-            <h3 className="text-xl font-bold mb-3">Fast & Reliable</h3>
-            <p className="text-gray-400">
-              Lightning-fast uploads and downloads with redundant storage
-              providers
-            </p>
-          </div>
-
-          <div className="p-8 bg-gray-800/30 backdrop-blur-sm rounded-2xl border border-gray-700/50 hover:border-green-500/50 transition-all hover:shadow-xl hover:shadow-green-500/10">
-            <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center mb-4">
-              <Globe className="text-green-400" size={24} />
+          ) : files.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {files.map((file, index) => (
+                <FileCard
+                  key={`${file.ownerAddress}-${file.pieceCid}-${index}`}
+                  file={file}
+                  dataset={file.dataset}
+                  ownerAddress={file.ownerAddress}
+                  showOwner={true}
+                />
+              ))}
             </div>
-            <h3 className="text-xl font-bold mb-3">Global Marketplace</h3>
-            <p className="text-gray-400">
-              Buy and sell files in a truly decentralized marketplace with
-              crypto payments
-            </p>
-          </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-20 bg-gray-800/30 rounded-2xl border border-gray-700/50">
+              <Store size={64} className="text-gray-600 mb-4" />
+              <h3 className="text-xl font-semibold text-gray-300 mb-2">
+                {searchQuery ? "No Matching Files" : "No Files Available"}
+              </h3>
+              <p className="text-gray-500 text-center max-w-md">
+                {searchQuery
+                  ? "No files found matching your search. Try a different address."
+                  : "No files are currently listed in the marketplace. Be the first to upload!"}
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -41,6 +41,15 @@ export const useBuy = (onPurchaseComplete?: () => void) => {
         queryKey: ["user-files", address, chainId],
       });
 
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          return (
+            query.queryKey[0] === "readContract" &&
+            JSON.stringify(query.queryKey).includes("getPurchasedItems")
+          );
+        },
+      });
+
       alert("Purchase confirmed! Downloading your file...");
 
       if (onPurchaseComplete) {

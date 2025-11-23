@@ -7,8 +7,15 @@ import {
   ShoppingCart,
 } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { useCategory, useFileOperations, useBuy, type UserFile } from "@/hooks";
+import {
+  useCategory,
+  useFileOperations,
+  useBuy,
+  usePurchasedItems,
+  type UserFile,
+} from "@/hooks";
 import { useAccount } from "wagmi";
+import { useMemo } from "react";
 
 interface FileCardProps {
   file: UserFile;
@@ -33,10 +40,9 @@ export function FileCard({
     delete: deleteFile,
   } = useFileOperations(file, dataset, ownerAddress);
 
-  console.log(deleteFile.isAvailable, "deleteFile.isAvailable");
+  const { data: purchasedItems } = usePurchasedItems();
 
   const buyMutation = useBuy(() => {
-    // Transaction is already confirmed, download immediately
     download.mutate();
   });
 
@@ -45,6 +51,12 @@ export function FileCard({
     connectedAddress &&
     ownerAddress &&
     connectedAddress.toLowerCase() === ownerAddress.toLowerCase();
+
+  // Check if user has purchased this item
+  const hasPurchased = useMemo(() => {
+    if (!purchasedItems || !file.contentId) return false;
+    return purchasedItems.some((item) => item.contentId === file.contentId);
+  }, [purchasedItems, file.contentId]);
 
   return (
     <Card
@@ -64,8 +76,8 @@ export function FileCard({
           </div>
           {hasPrice && (
             <div className="flex items-center space-x-1 px-3 py-1.5 bg-black/40 backdrop-blur-sm rounded-lg border border-white/10">
-              <DollarSign size={16} className="text-yellow-300" />
               <span className="text-sm font-bold text-white">{file.price}</span>
+              <span className="text-yellow-300 text-sm">tFIL</span>
             </div>
           )}
         </div>
@@ -102,79 +114,46 @@ export function FileCard({
           </span>
         )}
         <div className="flex items-center gap-2 transition-opacity">
-          {hasPrice && !isOwner ? (
-            <>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (!ownerAddress) {
-                    alert("Owner address not available");
-                    return;
-                  }
-                  if (!file.price) {
-                    alert("Price not available");
-                    return;
-                  }
-                  if (!file.contentId) {
-                    alert(
-                      "Content ID not available - file may not support purchases",
-                    );
-                    return;
-                  }
-
-                  buyMutation.mutate({
-                    creatorAddress: ownerAddress,
-                    cid: file.contentId,
-                    price: file.price,
-                  });
-                }}
-                disabled={buyMutation.isPending}
-                className="p-2 hover:bg-green-600/50 rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
-                title={
-                  buyMutation.isPending
-                    ? "Processing purchase..."
-                    : `Buy for ${file.price} FIL`
+          {hasPrice && !isOwner && !hasPurchased ? (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!ownerAddress) {
+                  alert("Owner address not available");
+                  return;
                 }
-              >
-                {buyMutation.isPending ? (
-                  <Loader2 size={16} className="text-green-400 animate-spin" />
-                ) : (
-                  <ShoppingCart size={16} className="text-green-400" />
-                )}
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  view.mutate();
-                }}
-                disabled={view.isPending || !view.isAvailable}
-                className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
-                title="View file (TESTING)"
-              >
-                {view.isPending ? (
-                  <Loader2 size={16} className="text-gray-400 animate-spin" />
-                ) : (
-                  <Eye size={16} className="text-gray-400" />
-                )}
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  download.mutate();
-                }}
-                disabled={download.isPending}
-                className="p-2 hover:bg-blue-600/50 rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
-                title="Download file (TESTING - will attempt decryption)"
-              >
-                {download.isPending ? (
-                  <Loader2 size={16} className="text-blue-400 animate-spin" />
-                ) : (
-                  <Download size={16} className="text-blue-400" />
-                )}
-              </button>
-            </>
+                if (!file.price) {
+                  alert("Price not available");
+                  return;
+                }
+                if (!file.contentId) {
+                  alert(
+                    "Content ID not available - file may not support purchases"
+                  );
+                  return;
+                }
+
+                buyMutation.mutate({
+                  creatorAddress: ownerAddress,
+                  cid: file.contentId,
+                  price: file.price,
+                });
+              }}
+              disabled={buyMutation.isPending}
+              className="p-2 hover:bg-green-600/50 rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+              title={
+                buyMutation.isPending
+                  ? "Processing purchase..."
+                  : `Buy for ${file.price} tFIL`
+              }
+            >
+              {buyMutation.isPending ? (
+                <Loader2 size={16} className="text-green-400 animate-spin" />
+              ) : (
+                <ShoppingCart size={16} className="text-green-400" />
+              )}
+            </button>
           ) : (
-            // Show view/download for free files or if owner
             <>
               <button
                 onClick={(e) => {

@@ -1,13 +1,11 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Link } from "@tanstack/react-router";
-import { useFund } from "@/hooks/useFund";
 import { useAccount } from "wagmi";
 import { Button } from "./ui/button";
 import { User, Store } from "lucide-react";
 
 export default function Header() {
   const { isConnected } = useAccount();
-  const { mutate: fund, isPending } = useFund();
 
   return (
     <header className="p-4 flex items-center bg-gray-800 backdrop-blur-md border-b border-gray-700/50 text-white shadow-lg sticky top-0 z-50">
@@ -36,15 +34,6 @@ export default function Header() {
                   My Marketplace
                 </Link>
               </Button>
-              <button
-                className="bg-blue-600/80 hover:bg-blue-600 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors font-medium"
-                onClick={() => {
-                  fund();
-                }}
-                disabled={isPending || !isConnected}
-              >
-                {isPending ? "Funding..." : "Fund"}
-              </button>
             </>
           )}
           <ConnectButton />

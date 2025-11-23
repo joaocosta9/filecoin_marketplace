@@ -33,6 +33,8 @@ export function FileCard({
     delete: deleteFile,
   } = useFileOperations(file, dataset, ownerAddress);
 
+  console.log(deleteFile.isAvailable, "deleteFile.isAvailable");
+
   const buyMutation = useBuy(() => {
     // Transaction is already confirmed, download immediately
     download.mutate();

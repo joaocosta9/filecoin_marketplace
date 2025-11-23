@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useAccount } from "wagmi";
-import { Plus } from "lucide-react";
+import { Plus, ShoppingBag } from "lucide-react";
 import UploadModal from "@/components/UploadModal";
-import { useUserFiles } from "@/hooks/useUserFiles";
+import { useUserFiles, usePurchasedItems, useMarketplaceFiles } from "@/hooks";
 import { FileCard } from "@/components/FileCard";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/EmptyState";
@@ -52,6 +52,33 @@ function ProfilePage() {
   const { data: files, isLoading } = useUserFiles(
     selectedDatasetId === "all" ? undefined : selectedDatasetId,
   );
+
+  const {
+    data: purchasedItems,
+    isLoading: isPurchasedLoading,
+    error: purchasedError,
+  } = usePurchasedItems();
+
+  const { files: marketplaceFiles, isLoading: isMarketplaceLoading } =
+    useMarketplaceFiles();
+
+  // Match purchased items with marketplace files
+  const purchasedFiles = useMemo(() => {
+    if (!purchasedItems || !marketplaceFiles) return [];
+
+    return purchasedItems
+      .map((item) => {
+        const file = marketplaceFiles.find(
+          (f) => f.contentId === item.contentId,
+        );
+        return file;
+      })
+      .filter((f) => f !== undefined);
+  }, [purchasedItems, marketplaceFiles]);
+
+  if (purchasedError) {
+    console.error("usePurchasedItems error:", purchasedError);
+  }
 
   const handleUploadClick = () => {
     if (!datasets || datasets.length === 0) {
@@ -152,6 +179,48 @@ function ProfilePage() {
               description="Start building your marketplace by uploading your first file"
               actionLabel="Upload Your First File"
               onAction={handleUploadClick}
+            />
+          )}
+        </div>
+
+        {/* Purchased Items Section */}
+        <div className="mt-12">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-3 bg-purple-600/20 rounded-xl border border-purple-500/30">
+              <ShoppingBag size={24} className="text-purple-400" />
+            </div>
+            <h2 className="text-2xl font-bold">
+              Purchased Items{" "}
+              {purchasedItems && (
+                <span className="text-gray-400 text-lg">
+                  ({purchasedItems.length})
+                </span>
+              )}
+            </h2>
+          </div>
+
+          {isPurchasedLoading || isMarketplaceLoading ? (
+            <LoadingSpinner message="Loading your purchases..." />
+          ) : purchasedFiles && purchasedFiles.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {purchasedFiles.map((file, index) => (
+                <FileCard
+                  key={file.pieceCid + index}
+                  file={file}
+                  dataset={file.dataset}
+                  ownerAddress={file.ownerAddress}
+                  showOwner={true}
+                />
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              title="No purchases yet"
+              description="Browse the marketplace to find and purchase files"
+              actionLabel="Go to Marketplace"
+              onAction={() => {
+                window.location.href = "/";
+              }}
             />
           )}
         </div>

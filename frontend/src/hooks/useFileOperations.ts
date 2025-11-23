@@ -25,6 +25,9 @@ export const useFileOperations = (
   );
   const deletePieceMutation = useDeletePiece();
 
+  console.log(file.pieceId, "file.pieceId");
+  console.log(dataset, "dataset");
+
   return {
     download: {
       mutate: downloadMutation.mutate,
@@ -43,7 +46,11 @@ export const useFileOperations = (
       mutation: deletePieceMutation,
       dataset,
       pieceId: file.pieceId,
-      isAvailable: !!(file.pieceId && dataset),
+      isAvailable: !!(
+        file.pieceId !== null &&
+        file.pieceId !== undefined &&
+        dataset
+      ),
     },
   };
 };

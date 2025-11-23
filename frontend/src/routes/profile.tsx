@@ -9,14 +9,18 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/EmptyState";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { DatasetSelector } from "@/components/DatasetSelector";
-import { useDataSets } from "@filoz/synapse-react";
+import {
+  useDataSets,
+  useCreateDataSet,
+  useProviders,
+} from "@filoz/synapse-react";
 
 export const Route = createFileRoute("/profile")({
   component: ProfilePage,
 });
 
 function ProfilePage() {
-  const { address, isConnected, chainId } = useAccount();
+  const { address, isConnected } = useAccount();
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [selectedDatasetId, setSelectedDatasetId] = useState<string>("all");
 
@@ -24,11 +28,22 @@ function ProfilePage() {
     data: datasets,
     isLoading: isLoadingDatasets,
     error,
-    status,
-    fetchStatus,
   } = useDataSets({
     address,
   });
+
+  const { data: providers } = useProviders();
+  const { mutate: createDataSet, isPending: isCreatingDataset } =
+    useCreateDataSet({
+      mutation: {
+        onSuccess: () => {
+          alert("Dataset created successfully! You can now upload files.");
+        },
+        onError: (error) => {
+          alert(`Failed to create dataset: ${error.message}`);
+        },
+      },
+    });
 
   if (error) {
     console.error("useDataSets error:", error);
@@ -37,6 +52,23 @@ function ProfilePage() {
   const { data: files, isLoading } = useUserFiles(
     selectedDatasetId === "all" ? undefined : selectedDatasetId,
   );
+
+  const handleUploadClick = () => {
+    if (!datasets || datasets.length === 0) {
+      if (!providers || providers.length === 0) {
+        alert("No storage providers available. Please try again later.");
+        return;
+      }
+      const confirmCreate = confirm(
+        "You need to create a dataset before uploading files. Create one now?",
+      );
+      if (confirmCreate) {
+        createDataSet({ provider: providers[0], cdn: false });
+      }
+    } else {
+      setIsUploadModalOpen(true);
+    }
+  };
 
   if (!isConnected) {
     return (
@@ -66,15 +98,17 @@ function ProfilePage() {
             <Button
               size="lg"
               className="bg-blue-600 hover:bg-blue-700"
-              onClick={() => setIsUploadModalOpen(true)}
+              onClick={handleUploadClick}
+              disabled={isCreatingDataset}
             >
               <Plus size={20} />
-              <span>Upload File</span>
+              <span>
+                {isCreatingDataset ? "Creating Dataset..." : "Upload File"}
+              </span>
             </Button>
           </div>
         </div>
 
-        {/* Files Grid */}
         <div>
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold">Your Files</h2>
@@ -108,16 +142,16 @@ function ProfilePage() {
           ) : !isLoadingDatasets && (!datasets || datasets.length === 0) ? (
             <EmptyState
               title="No datasets found"
-              description="Create your first dataset using the button above to start uploading files"
-              actionLabel="Get Started"
-              onAction={() => {}}
+              description="Create your first dataset to start uploading files"
+              actionLabel="Create Dataset"
+              onAction={handleUploadClick}
             />
           ) : (
             <EmptyState
               title="No files uploaded yet"
               description="Start building your marketplace by uploading your first file"
               actionLabel="Upload Your First File"
-              onAction={() => setIsUploadModalOpen(true)}
+              onAction={handleUploadClick}
             />
           )}
         </div>

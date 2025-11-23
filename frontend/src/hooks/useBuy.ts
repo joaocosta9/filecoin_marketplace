@@ -31,7 +31,7 @@ export const useBuy = (onPurchaseComplete?: () => void) => {
 
       const receipt = await publicClient.waitForTransactionReceipt({
         hash,
-        confirmations: 1,
+        confirmations: 2,
       });
 
       return { hash, receipt, creatorAddress, cid };

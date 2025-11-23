@@ -171,6 +171,13 @@ export const useFileUpload = () => {
       contentId: string;
     }) => {
       setProgress(100);
+
+      // Register in Sale contract with the contentId (UUID), not pieceCid
+      if (data.price > 0) {
+        writeContract({
+          args: [data.contentId, parseUnits(data.price.toString(), 18)],
+        });
+      }
       queryClient.invalidateQueries({
         queryKey: ["balances", address, chainId],
       });
@@ -180,13 +187,6 @@ export const useFileUpload = () => {
       queryClient.invalidateQueries({
         queryKey: ["user-files", address, chainId],
       });
-
-      // Register in Sale contract with the contentId (UUID), not pieceCid
-      if (data.price > 0) {
-        writeContract({
-          args: [data.contentId, parseUnits(data.price.toString(), 18)],
-        });
-      }
       setStatus("🎉 File successfully stored on Filecoin!");
       alert("File successfully stored on Filecoin!");
     },
